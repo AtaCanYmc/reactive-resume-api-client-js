@@ -56,7 +56,13 @@ var AuthAPI = class extends BaseAPI {
     const response = await this.client.request("/api/openapi/auth/providers", {
       method: "GET"
     });
-    return Array.from(response);
+    if (Array.isArray(response)) {
+      return response.map(String);
+    }
+    if (response && typeof response === "object") {
+      return Object.keys(response);
+    }
+    return [];
   }
   /**
    * Export user account data.
@@ -725,13 +731,18 @@ var RxResumeClient = class {
     this.baseUrl = options.baseUrl.replace(/\/+$/, "");
     this.timeout = options.timeout ?? 3e4;
     this._fetch = options.fetch ?? globalThis.fetch;
+    const isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
     this._headers = {
       Accept: "application/json",
-      "User-Agent": "rxresume-js/0.1.0",
+      ...isBrowser ? {} : { "User-Agent": "reactive-resume-api-client-js/1.0.1" },
       ...options.headers || {}
     };
     if (options.apiKey) {
-      this._headers["x-api-key"] = options.apiKey;
+      if (options.apiKey.startsWith("Bearer ") || options.apiKey.startsWith("bearer ")) {
+        this._headers["Authorization"] = options.apiKey;
+      } else {
+        this._headers["x-api-key"] = options.apiKey;
+      }
     } else if (options.token) {
       this._headers["Authorization"] = `Bearer ${options.token}`;
     }
@@ -762,8 +773,13 @@ var RxResumeClient = class {
    * Update client headers with a new API key.
    */
   setApiKey(apiKey) {
-    this._headers["x-api-key"] = apiKey;
-    delete this._headers["Authorization"];
+    if (apiKey.startsWith("Bearer ") || apiKey.startsWith("bearer ")) {
+      this._headers["Authorization"] = apiKey;
+      delete this._headers["x-api-key"];
+    } else {
+      this._headers["x-api-key"] = apiKey;
+      delete this._headers["Authorization"];
+    }
   }
   // Python SDK method aliases
   set_token = this.setToken.bind(this);

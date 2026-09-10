@@ -164,6 +164,34 @@ function recordCode(snippet) {
   }
 }
 
+// Helper: Create Live Fetch wrapper (bypasses browser CORS via local server proxy)
+function createLiveFetch() {
+  const isLocalServer =
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      window.location.hostname === "0.0.0.0");
+
+  return async (input, init) => {
+    const urlStr = typeof input === "string" ? input : (input && input.url ? input.url : String(input));
+
+    // If running on local Node server and target is cross-origin, route through /proxy
+    if (isLocalServer) {
+      try {
+        const targetUrl = new URL(urlStr, window.location.href);
+        if (targetUrl.origin !== window.location.origin) {
+          const proxyUrl = `/proxy?url=${encodeURIComponent(targetUrl.href)}`;
+          return await fetch(proxyUrl, init);
+        }
+      } catch {
+        // Fall back to direct fetch on URL parse failure
+      }
+    }
+
+    return fetch(input, init);
+  };
+}
+
 // Initialize Client
 function initClient() {
   updateBaseUrlLinks();
@@ -191,6 +219,7 @@ const client = new RxResumeClient({
     client = new RxResumeClient({
       baseUrl,
       ...(apiKey ? { apiKey } : {}),
+      fetch: createLiveFetch(),
     });
     recordCode(`// Initialize client in Live Mode
 const client = new RxResumeClient({
@@ -263,6 +292,11 @@ const resumes = await client.resumes.list();
       btn.addEventListener("click", () => handleDeleteResume(btn.dataset.id));
     });
   } catch (error) {
+    resumesList.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--color-danger); padding: 3rem;">
+      <p style="font-weight: 600; margin-bottom: 0.5rem;">${escapeHtml(t("toastErrorLoadingResumes"))}</p>
+      <span style="font-size: 0.85rem; color: var(--color-muted);">${escapeHtml(error.message)}</span>
+    </div>`;
+    resumesTabCount.textContent = "0";
     showToast(`${t("toastErrorLoadingResumes")} ${error.message}`, true);
   }
 }
@@ -401,6 +435,16 @@ await client.applications.delete("${appId}");`);
   }
 }
 
+function formatStat(val) {
+  if (typeof val === "number") return val.toLocaleString();
+  if (val && typeof val === "object") {
+    if (typeof val.count === "number") return val.count.toLocaleString();
+    if (typeof val.stars === "number") return val.stars.toLocaleString();
+    if (val.total !== undefined) return Number(val.total).toLocaleString();
+  }
+  return typeof val === "string" && !isNaN(Number(val)) ? Number(val).toLocaleString() : "—";
+}
+
 // Load Statistics & Flags
 async function loadStatistics() {
   try {
@@ -411,9 +455,9 @@ async function loadStatistics() {
       client.flags.list(),
     ]);
 
-    statUsersCount.textContent = (users && typeof users === "object" && users.count) ? users.count.toLocaleString() : "—";
-    statGithubStars.textContent = (stars && typeof stars === "object" && stars.stars) ? stars.stars.toLocaleString() : "—";
-    statResumesCount.textContent = (resumes && typeof resumes === "object" && resumes.count) ? resumes.count.toLocaleString() : "—";
+    statUsersCount.textContent = formatStat(users);
+    statGithubStars.textContent = formatStat(stars);
+    statResumesCount.textContent = formatStat(resumes);
     flagsJsonBlock.textContent = JSON.stringify(flags, null, 2);
 
     recordCode(`// Retrieve platform statistics and feature flags

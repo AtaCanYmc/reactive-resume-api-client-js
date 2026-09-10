@@ -51,4 +51,25 @@ describe("AuthAPI", () => {
     expect(typeof client.auth.export_account).toBe("function");
     expect(typeof client.auth.delete_account).toBe("function");
   });
+
+  it("should handle object dictionary returned by auth providers endpoint", async () => {
+    const mockFetch = vi.fn().mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          credential: "Password",
+          passkey: "Passkey",
+          google: "Google",
+          github: "GitHub",
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }
+      )
+    );
+
+    const client = new RxResumeClient({ baseUrl: BASE_URL, fetch: mockFetch });
+    const providers = await client.auth.listProviders();
+    expect(providers).toEqual(["credential", "passkey", "google", "github"]);
+  });
 });

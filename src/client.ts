@@ -45,14 +45,19 @@ export class RxResumeClient {
     this.timeout = options.timeout ?? 30000;
     this._fetch = options.fetch ?? globalThis.fetch;
 
+    const isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
     this._headers = {
       Accept: "application/json",
-      "User-Agent": "rxresume-js/0.1.0",
+      ...(isBrowser ? {} : { "User-Agent": "reactive-resume-api-client-js/1.0.1" }),
       ...(options.headers || {}),
     };
 
     if (options.apiKey) {
-      this._headers["x-api-key"] = options.apiKey;
+      if (options.apiKey.startsWith("Bearer ") || options.apiKey.startsWith("bearer ")) {
+        this._headers["Authorization"] = options.apiKey;
+      } else {
+        this._headers["x-api-key"] = options.apiKey;
+      }
     } else if (options.token) {
       this._headers["Authorization"] = `Bearer ${options.token}`;
     }
@@ -88,8 +93,13 @@ export class RxResumeClient {
    * Update client headers with a new API key.
    */
   setApiKey(apiKey: string): void {
-    this._headers["x-api-key"] = apiKey;
-    delete this._headers["Authorization"];
+    if (apiKey.startsWith("Bearer ") || apiKey.startsWith("bearer ")) {
+      this._headers["Authorization"] = apiKey;
+      delete this._headers["x-api-key"];
+    } else {
+      this._headers["x-api-key"] = apiKey;
+      delete this._headers["Authorization"];
+    }
   }
 
   // Python SDK method aliases

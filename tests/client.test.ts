@@ -24,6 +24,15 @@ describe("RxResumeClient Initialization and Authentication", () => {
     expect(client.headers["x-api-key"]).toBeUndefined();
   });
 
+  it("should support apiKey with Bearer prefix as Authorization header", () => {
+    const client = new RxResumeClient({ baseUrl: BASE_URL, apiKey: "Bearer token-123" });
+    expect(client.headers["Authorization"]).toBe("Bearer token-123");
+    expect(client.headers["x-api-key"]).toBeUndefined();
+
+    client.setApiKey("Bearer updated-token");
+    expect(client.headers["Authorization"]).toBe("Bearer updated-token");
+  });
+
   it("should switch between token and api_key properly", () => {
     const client = new RxResumeClient({ baseUrl: BASE_URL, apiKey: API_KEY });
     expect(client.headers["x-api-key"]).toBe(API_KEY);

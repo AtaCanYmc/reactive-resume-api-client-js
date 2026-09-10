@@ -8,10 +8,16 @@ export class AuthAPI extends BaseAPI {
    * List all configured authentication providers.
    */
   async listProviders(): Promise<string[]> {
-    const response = await this.client.request<string[]>("/api/openapi/auth/providers", {
+    const response = await this.client.request<unknown>("/api/openapi/auth/providers", {
       method: "GET",
     });
-    return Array.from(response);
+    if (Array.isArray(response)) {
+      return response.map(String);
+    }
+    if (response && typeof response === "object") {
+      return Object.keys(response);
+    }
+    return [];
   }
 
   /**
