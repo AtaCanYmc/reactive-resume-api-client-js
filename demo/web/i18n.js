@@ -193,6 +193,9 @@ export const translations = {
     corsBannerAction: "Switch to Sandbox",
     corsBannerDismiss: "Dismiss",
     corsProxyError: "Live connection blocked by browser CORS. Start local proxy with 'npm start' or switch to Sandbox Mode.",
+    backendBadge: "Demo Backend (localhost:3000)",
+    presetLocalBackend: "⚡ Demo Backend (3000)",
+    presetCloud: "☁️ rxresu.me",
   },
 
   tr: {
@@ -381,6 +384,9 @@ export const translations = {
     corsBannerAction: "Sandbox Moduna Geç",
     corsBannerDismiss: "Kapat",
     corsProxyError: "Canlı bağlantı tarayıcı CORS kısıtlamasına takıldı. 'npm start' ile yerel proxy'yi başlatın veya Sandbox Moduna geçin.",
+    backendBadge: "Demo Backend (localhost:3000)",
+    presetLocalBackend: "⚡ Demo Backend (3000)",
+    presetCloud: "☁️ rxresu.me",
   },
 
   de: {
@@ -569,6 +575,9 @@ export const translations = {
     corsBannerAction: "In Sandbox-Modus wechseln",
     corsBannerDismiss: "Schließen",
     corsProxyError: "Live-Verbindung durch Browser-CORS blockiert. Starten Sie den Proxy mit 'npm start' oder wechseln Sie in den Sandbox-Modus.",
+    backendBadge: "Demo-Backend (localhost:3000)",
+    presetLocalBackend: "⚡ Demo-Backend (3000)",
+    presetCloud: "☁️ rxresu.me",
   },
 
   fr: {
@@ -757,6 +766,9 @@ export const translations = {
     corsBannerAction: "Passer au Bac à sable",
     corsBannerDismiss: "Ignorer",
     corsProxyError: "Connexion directe bloquée par le CORS. Lancez le proxy local avec 'npm start' ou passez en mode Bac à sable.",
+    backendBadge: "Backend de Démo (localhost:3000)",
+    presetLocalBackend: "⚡ Backend Démo (3000)",
+    presetCloud: "☁️ rxresu.me",
   },
 
   es: {
@@ -945,6 +957,9 @@ export const translations = {
     corsBannerAction: "Cambiar a Sandbox",
     corsBannerDismiss: "Descartar",
     corsProxyError: "Conexión en vivo bloqueada por CORS del navegador. Inicia el proxy con 'npm start' o pasa a modo Sandbox.",
+    backendBadge: "Backend de Demo (localhost:3000)",
+    presetLocalBackend: "⚡ Backend Demo (3000)",
+    presetCloud: "☁️ rxresu.me",
   },
 };
 

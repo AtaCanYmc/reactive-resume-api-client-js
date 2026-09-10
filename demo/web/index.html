@@ -67,11 +67,17 @@
     <section class="config-card" aria-labelledby="config-heading">
       <div class="config-topbar">
         <h2 id="config-heading" class="config-title" data-i18n="configHeading">Client Connection</h2>
-        <label class="sandbox-switch">
-          <input type="checkbox" id="sandboxToggle" checked />
-          <span class="switch-ui" aria-hidden="true"></span>
-          <span class="switch-label" data-i18n="sandboxToggle">Offline Sandbox Mode</span>
-        </label>
+        <div class="config-topbar-actions">
+          <div class="target-presets" role="group" aria-label="Backend Target Presets">
+            <button type="button" id="presetLocalBackendBtn" class="btn btn-xs btn-outline active" data-i18n="presetLocalBackend">Demo Backend (Local)</button>
+            <button type="button" id="presetCloudBtn" class="btn btn-xs btn-ghost" data-i18n="presetCloud">Cloud (rxresu.me)</button>
+          </div>
+          <label class="sandbox-switch">
+            <input type="checkbox" id="sandboxToggle" />
+            <span class="switch-ui" aria-hidden="true"></span>
+            <span class="switch-label" data-i18n="sandboxToggle">Offline Sandbox Mode</span>
+          </label>
+        </div>
       </div>
 
       <div class="config-form">
@@ -80,7 +86,7 @@
             <label for="baseUrlInput" class="field-label" data-i18n="baseUrlLabel">API Base URL</label>
             <a href="https://rxresu.me" target="_blank" rel="noopener noreferrer" class="helper-link" id="openInstanceLink" title="Open API Base URL in new tab" data-i18n="openInstanceLink" data-i18n-title="openInstanceLinkTooltip">Open &nearr;</a>
           </div>
-          <input type="text" id="baseUrlInput" class="input input-mono" value="https://rxresu.me" placeholder="https://rxresu.me or custom instance" data-i18n-placeholder="baseUrlPlaceholder" spellcheck="false" />
+          <input type="text" id="baseUrlInput" class="input input-mono" value="http://localhost:3000" placeholder="http://localhost:3000 or custom instance" data-i18n-placeholder="baseUrlPlaceholder" spellcheck="false" />
         </div>
 
         <div class="form-group flex-1">

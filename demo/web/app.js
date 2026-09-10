@@ -22,11 +22,21 @@ const modeText = document.getElementById("modeText");
 const getKeyLink = document.getElementById("getKeyLink");
 const openInstanceLink = document.getElementById("openInstanceLink");
 
+function isLocalBackendUrl(url) {
+  try {
+    const parsed = new URL(url, typeof window !== "undefined" ? window.location.href : "http://localhost:3000");
+    return (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") && (parsed.port === "3000" || (typeof window !== "undefined" && window.location.port === "3000"));
+  } catch {
+    return false;
+  }
+}
+
 function updateBaseUrlLinks() {
-  const raw = baseUrlInput.value.trim() || "https://rxresu.me";
+  const raw = baseUrlInput.value.trim() || "http://localhost:3000";
   const baseUrl = raw.replace(/\/+$/, "");
+  const isLocal = isLocalBackendUrl(baseUrl);
   if (getKeyLink) {
-    getKeyLink.href = `${baseUrl}/dashboard/settings/api-keys`;
+    getKeyLink.href = isLocal ? `${baseUrl}/health` : `${baseUrl}/dashboard/settings/api-keys`;
   }
   if (openInstanceLink) {
     openInstanceLink.href = baseUrl;
@@ -100,11 +110,18 @@ function initSavedSettings() {
   const savedBaseUrl = localStorage.getItem(BASE_URL_STORAGE_KEY) || sessionStorage.getItem(BASE_URL_STORAGE_KEY);
   if (savedBaseUrl && baseUrlInput) {
     baseUrlInput.value = savedBaseUrl;
+  } else if (baseUrlInput) {
+    baseUrlInput.value = (typeof window !== "undefined" && window.location.port === "3000")
+      ? window.location.origin
+      : "http://localhost:3000";
   }
 
   const savedSandbox = localStorage.getItem(SANDBOX_STORAGE_KEY);
   if (savedSandbox !== null && sandboxToggle) {
     sandboxToggle.checked = savedSandbox === "true";
+  } else if (sandboxToggle) {
+    const isLocal = isLocalBackendUrl(baseUrlInput ? baseUrlInput.value : "");
+    sandboxToggle.checked = !isLocal;
   }
 }
 
@@ -202,8 +219,21 @@ function createLiveFetch() {
       return fetch(input, init);
     }
 
+    const isLocalBackend = (targetUrl.hostname === "localhost" || targetUrl.hostname === "127.0.0.1") && (targetUrl.port === "3000" || (typeof window !== "undefined" && window.location.port === "3000"));
     const isRxResume = targetUrl.hostname === "rxresu.me" || targetUrl.hostname.endsWith(".rxresu.me");
     const isCrossOrigin = typeof window !== "undefined" && targetUrl.origin !== window.location.origin;
+
+    // Direct fetch for local demo backend (which has full CORS enabled)
+    if (isLocalBackend) {
+      try {
+        const response = await fetch(input, init);
+        hideCorsNotice();
+        return response;
+      } catch (err) {
+        console.warn("[ReactiveResume SDK] Direct call to local demo backend failed:", err);
+        throw err;
+      }
+    }
 
     // For rxresu.me or cross-origin targets, route via local proxy
     if (proxyBase && (isRxResume || isCrossOrigin)) {
@@ -241,9 +271,26 @@ function createLiveFetch() {
 // Initialize Client
 function initClient() {
   updateBaseUrlLinks();
-  const baseUrl = baseUrlInput.value.trim() || "https://rxresu.me";
+  const baseUrl = baseUrlInput.value.trim() || "http://localhost:3000";
   const apiKey = apiKeyInput.value.trim();
   const isSandbox = sandboxToggle.checked;
+  const isLocal = isLocalBackendUrl(baseUrl);
+
+  // Update preset buttons state
+  const presetLocalBtn = document.getElementById("presetLocalBackendBtn");
+  const presetCloudBtn = document.getElementById("presetCloudBtn");
+  if (presetLocalBtn && presetCloudBtn) {
+    if (isLocal) {
+      presetLocalBtn.classList.add("active");
+      presetCloudBtn.classList.remove("active");
+    } else if (baseUrl.includes("rxresu.me")) {
+      presetCloudBtn.classList.add("active");
+      presetLocalBtn.classList.remove("active");
+    } else {
+      presetLocalBtn.classList.remove("active");
+      presetCloudBtn.classList.remove("active");
+    }
+  }
 
   if (isSandbox) {
     modeBadge.className = "mode-badge sandbox";
@@ -258,6 +305,19 @@ const client = new RxResumeClient({
   baseUrl: "${baseUrl}",
   apiKey: "sandbox-demo-key",
   fetch: createMockFetch(),
+});`);
+  } else if (isLocal) {
+    modeBadge.className = "mode-badge backend";
+    modeText.textContent = t("backendBadge");
+    client = new RxResumeClient({
+      baseUrl,
+      apiKey: apiKey || "demo-local-api-key",
+      fetch: createLiveFetch(),
+    });
+    recordCode(`// Initialize client connected to Demo Backend
+const client = new RxResumeClient({
+  baseUrl: "${baseUrl}",
+  apiKey: "${apiKey || "demo-local-api-key"}",
 });`);
   } else {
     modeBadge.className = "mode-badge live";
@@ -832,12 +892,51 @@ function setupEvents() {
   apiKeyInput.addEventListener("input", saveCredentials);
   apiKeyInput.addEventListener("change", saveCredentials);
 
+  // Target Preset Buttons
+  const presetLocalBtn = document.getElementById("presetLocalBackendBtn");
+  if (presetLocalBtn) {
+    presetLocalBtn.addEventListener("click", () => {
+      baseUrlInput.value = (typeof window !== "undefined" && window.location.port === "3000")
+        ? window.location.origin
+        : "http://localhost:3000";
+      sandboxToggle.checked = false;
+      hideCorsNotice();
+      updateBaseUrlLinks();
+      saveCredentials();
+      initClient();
+      loadResumes();
+      loadApplications();
+      loadAiProviders();
+      loadStatistics();
+      loadAuthData();
+      showToast(t("backendBadge"));
+    });
+  }
+
+  const presetCloudBtn = document.getElementById("presetCloudBtn");
+  if (presetCloudBtn) {
+    presetCloudBtn.addEventListener("click", () => {
+      baseUrlInput.value = "https://rxresu.me";
+      updateBaseUrlLinks();
+      saveCredentials();
+      initClient();
+      loadResumes();
+      loadApplications();
+      loadAiProviders();
+      loadStatistics();
+      loadAuthData();
+      showToast(t("liveBadge"));
+    });
+  }
+
   applyConfigBtn.addEventListener("click", () => {
     saveCredentials();
     initClient();
     loadResumes();
     loadApplications();
+    loadAiProviders();
     loadStatistics();
+    loadAuthData();
     showToast(t("toastConnectionSuccess"));
   });
 
@@ -849,7 +948,9 @@ function setupEvents() {
     initClient();
     loadResumes();
     loadApplications();
+    loadAiProviders();
     loadStatistics();
+    loadAuthData();
     if (!sandboxToggle.checked && !apiKeyInput.value.trim()) {
       showToast(t("toastSwitchedLive"));
     }
