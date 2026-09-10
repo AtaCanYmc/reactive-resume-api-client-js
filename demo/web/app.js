@@ -20,12 +20,18 @@ const applyConfigBtn = document.getElementById("applyConfigBtn");
 const modeBadge = document.getElementById("modeBadge");
 const modeText = document.getElementById("modeText");
 const getKeyLink = document.getElementById("getKeyLink");
+const testConnectionBtn = document.getElementById("testConnectionBtn");
+const openInstanceLink = document.getElementById("openInstanceLink");
 
-function updateApiKeyLink() {
-  if (!getKeyLink) return;
+function updateBaseUrlLinks() {
   const raw = baseUrlInput.value.trim() || "https://rxresu.me";
   const baseUrl = raw.replace(/\/+$/, "");
-  getKeyLink.href = `${baseUrl}/dashboard/settings/api-keys`;
+  if (getKeyLink) {
+    getKeyLink.href = `${baseUrl}/dashboard/settings/api-keys`;
+  }
+  if (openInstanceLink) {
+    openInstanceLink.href = baseUrl;
+  }
 }
 
 const resumesList = document.getElementById("resumesList");
@@ -97,6 +103,7 @@ function recordCode(snippet) {
 
 // Initialize Client
 function initClient() {
+  updateBaseUrlLinks();
   const baseUrl = baseUrlInput.value.trim() || "https://rxresu.me";
   const apiKey = apiKeyInput.value.trim();
   const isSandbox = sandboxToggle.checked;
@@ -358,11 +365,84 @@ const [users, stars, resumes, flags] = await Promise.all([
   }
 }
 
+// Test API Connection
+async function handleTestConnection() {
+  if (!testConnectionBtn) return;
+  const isSandbox = sandboxToggle.checked;
+  const raw = baseUrlInput.value.trim() || "https://rxresu.me";
+  const baseUrl = raw.replace(/\/+$/, "");
+
+  testConnectionBtn.disabled = true;
+  testConnectionBtn.textContent = t("testingConnection");
+
+  const startTime = performance.now();
+
+  if (isSandbox) {
+    setTimeout(() => {
+      const latency = Math.round(performance.now() - startTime + 10);
+      showToast(`✓ ${t("toastSandboxActive")} ${latency}ms)`);
+      testConnectionBtn.textContent = `✓ OK (${latency}ms)`;
+      testConnectionBtn.disabled = false;
+      setTimeout(() => {
+        testConnectionBtn.textContent = t("testConnectionBtn");
+      }, 3500);
+    }, 120);
+    return;
+  }
+
+  try {
+    const apiKey = apiKeyInput.value.trim();
+    const headers = { Accept: "application/json" };
+    if (apiKey) {
+      if (apiKey.startsWith("Bearer ") || apiKey.startsWith("bearer ")) {
+        headers["Authorization"] = apiKey;
+      } else {
+        headers["x-api-key"] = apiKey;
+      }
+    }
+
+    const res = await fetch(`${baseUrl}/api/openapi/flags`, {
+      method: "GET",
+      headers,
+      signal: AbortSignal.timeout(5000),
+    });
+
+    const latency = Math.round(performance.now() - startTime);
+
+    if (res.ok || res.status === 401 || res.status === 403 || res.status === 404) {
+      const statusNote = res.ok ? "200 OK" : `${res.status} ${res.statusText || "Active"}`;
+      showToast(`✓ ${t("toastConnectionSuccess")} [${statusNote} — ${latency}ms]`);
+      testConnectionBtn.textContent = `✓ ${statusNote} (${latency}ms)`;
+      recordCode(`// Test connection to API Base URL
+const res = await fetch("${baseUrl}/api/openapi/flags", {
+  method: "GET",
+  headers: ${JSON.stringify(headers)}
+});
+// Response: ${res.status} (${res.statusText}) in ${latency}ms`);
+    } else {
+      showToast(`${t("toastConnectionFailed")} HTTP ${res.status}`, true);
+      testConnectionBtn.textContent = `✕ HTTP ${res.status}`;
+    }
+  } catch (error) {
+    const latency = Math.round(performance.now() - startTime);
+    showToast(`${t("toastConnectionFailed")} ${error.message} (${latency}ms)`, true);
+    testConnectionBtn.textContent = "✕ Failed";
+  } finally {
+    testConnectionBtn.disabled = false;
+    setTimeout(() => {
+      testConnectionBtn.textContent = t("testConnectionBtn");
+    }, 4000);
+  }
+}
+
 // Setup Event Listeners
 function setupEvents() {
-  // Config Apply
-  baseUrlInput.addEventListener("input", updateApiKeyLink);
-  baseUrlInput.addEventListener("change", updateApiKeyLink);
+  // Config Apply & Links
+  baseUrlInput.addEventListener("input", updateBaseUrlLinks);
+  baseUrlInput.addEventListener("change", updateBaseUrlLinks);
+  if (testConnectionBtn) {
+    testConnectionBtn.addEventListener("click", handleTestConnection);
+  }
 
   applyConfigBtn.addEventListener("click", () => {
     initClient();

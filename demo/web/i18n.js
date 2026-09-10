@@ -16,6 +16,9 @@ export const translations = {
     sandboxToggle: "Offline Sandbox Mode",
     baseUrlLabel: "API Base URL",
     baseUrlPlaceholder: "https://rxresu.me or custom instance",
+    testConnectionBtn: "Test Connection",
+    testingConnection: "Testing...",
+    openInstanceLink: "Open ↗",
     apiKeyLabel: "API Key / Bearer Token",
     apiKeyHint: "(optional in sandbox)",
     getKeyLink: "Get API Key ↗",
@@ -103,6 +106,9 @@ export const translations = {
     toastErrorLoggingApp: "Error logging application:",
     toastErrorDownloadingPdf: "Failed to download PDF:",
     toastErrorPreviewingPdf: "Failed to preview PDF:",
+    toastConnectionSuccess: "Connection successful!",
+    toastConnectionFailed: "Connection failed:",
+    toastSandboxActive: "Sandbox Mode active (mock latency:",
   },
 
   tr: {
@@ -114,6 +120,9 @@ export const translations = {
     sandboxToggle: "Çevrimdışı Sandbox Modu",
     baseUrlLabel: "API Temel Adresi (Base URL)",
     baseUrlPlaceholder: "https://rxresu.me veya özel sunucu",
+    testConnectionBtn: "Bağlantıyı Test Et",
+    testingConnection: "Test ediliyor...",
+    openInstanceLink: "Aç ↗",
     apiKeyLabel: "API Anahtarı / Bearer Token",
     apiKeyHint: "(sandbox modunda isteğe bağlı)",
     getKeyLink: "API Anahtarı Al ↗",
@@ -201,6 +210,9 @@ export const translations = {
     toastErrorLoggingApp: "Başvuru kaydedilirken hata:",
     toastErrorDownloadingPdf: "PDF indirilemedi:",
     toastErrorPreviewingPdf: "PDF önizlenemedi:",
+    toastConnectionSuccess: "Bağlantı başarılı!",
+    toastConnectionFailed: "Bağlantı başarısız:",
+    toastSandboxActive: "Sandbox Modu aktif (sahte gecikme:",
   },
 
   de: {
@@ -212,6 +224,9 @@ export const translations = {
     sandboxToggle: "Offline-Sandbox-Modus",
     baseUrlLabel: "API-Basis-URL",
     baseUrlPlaceholder: "https://rxresu.me oder eigene Instanz",
+    testConnectionBtn: "Verbindung testen",
+    testingConnection: "Wird getestet...",
+    openInstanceLink: "Öffnen ↗",
     apiKeyLabel: "API-Schlüssel / Bearer-Token",
     apiKeyHint: "(optional in der Sandbox)",
     getKeyLink: "API-Schlüssel holen ↗",
@@ -299,6 +314,9 @@ export const translations = {
     toastErrorLoggingApp: "Fehler beim Speichern der Bewerbung:",
     toastErrorDownloadingPdf: "Fehler beim Herunterladen der PDF:",
     toastErrorPreviewingPdf: "Fehler bei der PDF-Vorschau:",
+    toastConnectionSuccess: "Verbindung erfolgreich!",
+    toastConnectionFailed: "Verbindung fehlgeschlagen:",
+    toastSandboxActive: "Sandbox-Modus aktiv (Mock-Latenz:",
   },
 
   fr: {
@@ -310,6 +328,9 @@ export const translations = {
     sandboxToggle: "Mode Bac à sable Hors Ligne",
     baseUrlLabel: "URL de Base de l'API",
     baseUrlPlaceholder: "https://rxresu.me ou instance personnalisée",
+    testConnectionBtn: "Tester la connexion",
+    testingConnection: "Test en cours...",
+    openInstanceLink: "Ouvrir ↗",
     apiKeyLabel: "Clé API / Jeton Bearer",
     apiKeyHint: "(facultatif en bac à sable)",
     getKeyLink: "Obtenir une clé API ↗",
@@ -397,6 +418,9 @@ export const translations = {
     toastErrorLoggingApp: "Erreur lors de l'enregistrement de la candidature :",
     toastErrorDownloadingPdf: "Échec du téléchargement du PDF :",
     toastErrorPreviewingPdf: "Échec de l'aperçu du PDF :",
+    toastConnectionSuccess: "Connexion réussie !",
+    toastConnectionFailed: "Échec de la connexion :",
+    toastSandboxActive: "Mode Bac à sable actif (latence simulée :",
   },
 
   es: {
@@ -408,6 +432,9 @@ export const translations = {
     sandboxToggle: "Modo Sandbox Sin Conexión",
     baseUrlLabel: "URL Base de la API",
     baseUrlPlaceholder: "https://rxresu.me o instancia propia",
+    testConnectionBtn: "Probar conexión",
+    testingConnection: "Probando...",
+    openInstanceLink: "Abrir ↗",
     apiKeyLabel: "Clave API / Token Bearer",
     apiKeyHint: "(opcional en sandbox)",
     getKeyLink: "Obtener Clave API ↗",
@@ -495,6 +522,9 @@ export const translations = {
     toastErrorLoggingApp: "Error al registrar candidatura:",
     toastErrorDownloadingPdf: "Fallo al descargar PDF:",
     toastErrorPreviewingPdf: "Fallo en la vista previa de PDF:",
+    toastConnectionSuccess: "¡Conexión exitosa!",
+    toastConnectionFailed: "Fallo de conexión:",
+    toastSandboxActive: "Modo Sandbox activo (latencia simulada:",
   },
 };
 
