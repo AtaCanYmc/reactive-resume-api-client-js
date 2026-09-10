@@ -1,0 +1,19 @@
+services:
+  demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: reactive-resume-demo:latest
+    container_name: reactive-resume-demo
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 5s

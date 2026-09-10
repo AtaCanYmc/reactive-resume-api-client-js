@@ -18,6 +18,23 @@ A standalone, zero-dependency Node.js mock API and proxy backend server designed
 ## Quick Start
 
 ### 1. Start the Demo Backend
+
+**Using Docker (Unified Container):**
+```bash
+# Start container in background
+docker compose up -d
+
+# Or via npm script
+npm run docker:up
+
+# View logs
+docker compose logs -f
+
+# Stop container
+docker compose down
+```
+
+**Using Node.js Directly:**
 ```bash
 # Using npm
 npm run demo:backend
@@ -29,7 +46,7 @@ npm start
 node demo/backend/server.js
 ```
 
-The server starts on port `3000` (configurable via `PORT=3001 node demo/backend/server.js`).
+The server starts on port `3000` (configurable via `PORT=3001 node demo/backend/server.js` or `PORT=3001 docker compose up`).
 
 ### 2. Access Web Demo & API
 - **Web Demo Interface**: [http://localhost:3000](http://localhost:3000)

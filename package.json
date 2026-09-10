@@ -55,6 +55,10 @@
     "demo": "node demo/backend/server.js",
     "demo:backend": "node demo/backend/server.js",
     "start": "node demo/backend/server.js",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
     "prepublishOnly": "npm run build && npm test"
   },
   "devDependencies": {

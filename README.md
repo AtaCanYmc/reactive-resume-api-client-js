@@ -85,9 +85,14 @@ const client = new RxResumeClient({
 An interactive browser-based dashboard demo is included under [`demo/web/`](demo/web), allowing you to explore the SDK features live in the browser with an interactive sandbox mode (no API key required) or connected to your live Reactive Resume instance.
 
 - **GitHub Pages**: Automatically deployed from `demo/web` via GitHub Actions
-- **Run locally**:
+- **Run locally (Node.js)**:
   ```bash
   npm run preview:demo
+  ```
+- **Run locally (Docker)**:
+  ```bash
+  docker compose up -d
+  # or: npm run docker:up
   ```
   Then open `http://localhost:3000` in your browser.
 

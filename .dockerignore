@@ -1,0 +1,21 @@
+# Dependencies & cache
+node_modules
+.npm
+
+# Git & GitHub
+.git
+.github
+
+# Testing & Coverage
+tests
+coverage
+
+# Internal tools & agents
+.gemini
+.hallmark
+
+# Logs & temp files
+*.log
+.DS_Store
+.env
+.env.*
