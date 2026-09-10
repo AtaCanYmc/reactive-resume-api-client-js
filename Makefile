@@ -1,4 +1,4 @@
-.PHONY: help install build typecheck test test-watch test-cov check build-demo demo clean publish-dry publish
+.PHONY: help install build typecheck test test-watch test-cov check build-demo demo docker-up docker-down docker-logs clean publish-dry publish
 
 # Default target
 .DEFAULT_GOAL := help
@@ -41,6 +41,15 @@ build-demo: ## Build SDK and copy bundle into demo/web/vendor
 
 demo: build-demo ## Start local web demo preview server
 	npm run preview:demo
+
+docker-up: ## Build and start demo in Docker (port 3000)
+	docker compose up --build -d
+
+docker-down: ## Stop and remove demo container
+	docker compose down
+
+docker-logs: ## Tail demo container logs
+	docker compose logs -f
 
 clean: ## Remove build outputs, coverage, and cached assets
 	rm -rf dist coverage demo/web/vendor
