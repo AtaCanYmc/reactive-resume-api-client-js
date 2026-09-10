@@ -30,6 +30,14 @@ yarn add reactive-resume-api-client-js
 bun add reactive-resume-api-client-js
 ```
 
+### GitHub Packages
+
+If you prefer installing from GitHub Packages:
+
+```bash
+npm install @atacanymc/reactive-resume-api-client-js --registry=https://npm.pkg.github.com
+```
+
 ---
 
 ## Quick Start
