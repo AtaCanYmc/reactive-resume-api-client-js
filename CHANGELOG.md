@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/AtaCanYmc/reactive-resume-api-client-js/compare/v1.0.0...v1.0.1) (2026-09-10)
+
+
+### Bug Fixes
+
+* **client:** enforce Node &gt;=20.12 engine requirement and enhance demo workbench ([757bd63](https://github.com/AtaCanYmc/reactive-resume-api-client-js/commit/757bd63091afe06ba1f6b0f1c4f92c1e87f71bea))
+
 ## 1.0.0 (2026-09-10)
 
 
