@@ -63,8 +63,49 @@ const pdfModalTitle = document.getElementById("pdfModalTitle");
 const settingsModal = document.getElementById("settingsModal");
 const openSettingsModalBtn = document.getElementById("openSettingsModalBtn");
 
-// Theme Management
+// Storage Keys
 const THEME_STORAGE_KEY = "rx_theme_pref";
+const API_KEY_STORAGE_KEY = "rx_api_key";
+const BASE_URL_STORAGE_KEY = "rx_base_url";
+const SANDBOX_STORAGE_KEY = "rx_sandbox_pref";
+
+function initSavedSettings() {
+  const savedApiKey = localStorage.getItem(API_KEY_STORAGE_KEY) || sessionStorage.getItem(API_KEY_STORAGE_KEY);
+  if (savedApiKey && apiKeyInput) {
+    apiKeyInput.value = savedApiKey;
+  }
+
+  const savedBaseUrl = localStorage.getItem(BASE_URL_STORAGE_KEY) || sessionStorage.getItem(BASE_URL_STORAGE_KEY);
+  if (savedBaseUrl && baseUrlInput) {
+    baseUrlInput.value = savedBaseUrl;
+  }
+
+  const savedSandbox = localStorage.getItem(SANDBOX_STORAGE_KEY);
+  if (savedSandbox !== null && sandboxToggle) {
+    sandboxToggle.checked = savedSandbox === "true";
+  }
+}
+
+function saveCredentials() {
+  const apiKey = apiKeyInput.value.trim();
+  if (apiKey) {
+    localStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
+    sessionStorage.setItem(API_KEY_STORAGE_KEY, apiKey);
+  } else {
+    localStorage.removeItem(API_KEY_STORAGE_KEY);
+    sessionStorage.removeItem(API_KEY_STORAGE_KEY);
+  }
+
+  const baseUrl = baseUrlInput.value.trim();
+  if (baseUrl) {
+    localStorage.setItem(BASE_URL_STORAGE_KEY, baseUrl);
+    sessionStorage.setItem(BASE_URL_STORAGE_KEY, baseUrl);
+  }
+
+  if (sandboxToggle) {
+    localStorage.setItem(SANDBOX_STORAGE_KEY, String(sandboxToggle.checked));
+  }
+}
 
 function applyTheme(theme) {
   if (theme === "dark" || theme === "light") {
@@ -438,21 +479,32 @@ const res = await fetch("${baseUrl}/api/openapi/flags", {
 // Setup Event Listeners
 function setupEvents() {
   // Config Apply & Links
-  baseUrlInput.addEventListener("input", updateBaseUrlLinks);
-  baseUrlInput.addEventListener("change", updateBaseUrlLinks);
+  baseUrlInput.addEventListener("input", () => {
+    updateBaseUrlLinks();
+    saveCredentials();
+  });
+  baseUrlInput.addEventListener("change", () => {
+    updateBaseUrlLinks();
+    saveCredentials();
+  });
+  apiKeyInput.addEventListener("input", saveCredentials);
+  apiKeyInput.addEventListener("change", saveCredentials);
+
   if (testConnectionBtn) {
     testConnectionBtn.addEventListener("click", handleTestConnection);
   }
 
   applyConfigBtn.addEventListener("click", () => {
+    saveCredentials();
     initClient();
     loadResumes();
     loadApplications();
     loadStatistics();
-    showToast("Client connected successfully.");
+    showToast(t("toastConnectionSuccess"));
   });
 
   sandboxToggle.addEventListener("change", () => {
+    saveCredentials();
     initClient();
     loadResumes();
     loadApplications();
@@ -663,6 +715,7 @@ function escapeHtml(str) {
 // Start
 initLanguage();
 initTheme();
+initSavedSettings();
 initClient();
 setupEvents();
 loadResumes();
