@@ -71,7 +71,7 @@
 
 /* Dark Mode Calibration (Calm, High-Contrast Developer Palette) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --color-paper: oklch(15% 0.01 255);
     --color-paper-2: oklch(18% 0.012 255);
     --color-paper-3: oklch(21% 0.014 255);
@@ -102,6 +102,38 @@
     --shadow-subtle: 0 1px 2px oklch(0% 0 0 / 0.2);
     --shadow-modal: 0 16px 40px oklch(0% 0 0 / 0.45);
   }
+}
+
+html[data-theme="dark"] {
+  --color-paper: oklch(15% 0.01 255);
+  --color-paper-2: oklch(18% 0.012 255);
+  --color-paper-3: oklch(21% 0.014 255);
+  --color-paper-elevated: oklch(20% 0.014 255);
+
+  --color-rule: oklch(25% 0.012 255);
+  --color-rule-2: oklch(32% 0.015 255);
+
+  --color-ink: oklch(95% 0.006 250);
+  --color-ink-2: oklch(82% 0.008 250);
+  --color-muted: oklch(64% 0.01 250);
+  --color-dim: oklch(50% 0.008 250);
+
+  --color-accent: oklch(62% 0.22 256);
+  --color-accent-hover: oklch(68% 0.21 256);
+  --color-accent-ink: oklch(15% 0.01 255);
+
+  --color-graphite: oklch(12% 0.01 260);
+  --color-graphite-2: oklch(16% 0.012 260);
+  --color-graphite-rule: oklch(24% 0.014 260);
+  --color-graphite-ink: oklch(94% 0.006 250);
+  --color-graphite-muted: oklch(60% 0.01 250);
+
+  --color-status-ok-bg: oklch(22% 0.06 152);
+  --color-status-warn-bg: oklch(22% 0.06 68);
+  --color-status-err-bg: oklch(22% 0.08 26);
+
+  --shadow-subtle: 0 1px 2px oklch(0% 0 0 / 0.2);
+  --shadow-modal: 0 16px 40px oklch(0% 0 0 / 0.45);
 }
 
 /* Base Reset & Safety */
@@ -989,6 +1021,85 @@ select:focus:not(:focus-visible) {
   gap: var(--space-xs);
   padding: var(--space-md);
   border-top: 1px solid var(--color-rule);
+}
+
+/* Settings Modal Components */
+.setting-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xs);
+  padding-bottom: var(--space-sm);
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.setting-group:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.setting-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+.setting-desc {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  margin-bottom: var(--space-2xs);
+}
+
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2xs);
+  margin-top: var(--space-3xs);
+}
+
+.theme-option {
+  cursor: pointer;
+  position: relative;
+}
+
+.theme-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.theme-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-xs);
+  background-color: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+}
+
+.theme-option input:checked + .theme-card {
+  border-color: var(--color-accent);
+  background-color: var(--color-paper-elevated);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.theme-option:hover .theme-card {
+  border-color: var(--color-rule-2);
+}
+
+.theme-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+.theme-meta {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--color-muted);
 }
 
 /* Toast Notifications */

@@ -53,6 +53,29 @@ const pdfModal = document.getElementById("pdfModal");
 const pdfFrame = document.getElementById("pdfFrame");
 const pdfDownloadLink = document.getElementById("pdfDownloadLink");
 const pdfModalTitle = document.getElementById("pdfModalTitle");
+const settingsModal = document.getElementById("settingsModal");
+const openSettingsModalBtn = document.getElementById("openSettingsModalBtn");
+
+// Theme Management
+const THEME_STORAGE_KEY = "rx_theme_pref";
+
+function applyTheme(theme) {
+  if (theme === "dark" || theme === "light") {
+    document.documentElement.setAttribute("data-theme", theme);
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+  }
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) || "system";
+  applyTheme(savedTheme);
+
+  const radio = document.querySelector(`input[name="themeSelect"][value="${savedTheme}"]`);
+  if (radio) {
+    radio.checked = true;
+  }
+}
 
 // Helper: Toast Notifications
 function showToast(message, isError = false) {
@@ -387,10 +410,46 @@ function setupEvents() {
   document.getElementById("openCreateAppModalBtn").addEventListener("click", () => {
     createAppModal.classList.add("open");
   });
+  if (openSettingsModalBtn && settingsModal) {
+    openSettingsModalBtn.addEventListener("click", () => {
+      settingsModal.classList.add("open");
+    });
+  }
+
+  // Theme selection listener
+  document.querySelectorAll('input[name="themeSelect"]').forEach((radio) => {
+    radio.addEventListener("change", (e) => {
+      const theme = e.target.value;
+      applyTheme(theme);
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    });
+  });
+
+  // Modal close buttons and backdrop clicks
   document.querySelectorAll(".closeModalBtn").forEach((btn) => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".modal-backdrop").forEach((m) => m.classList.remove("open"));
     });
+  });
+
+  document.querySelectorAll(".modal-backdrop").forEach((backdrop) => {
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) {
+        backdrop.classList.remove("open");
+      }
+    });
+  });
+
+  // Keyboard Shortcuts (Escape to close modals, Cmd+, to open settings)
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      document.querySelectorAll(".modal-backdrop").forEach((m) => m.classList.remove("open"));
+    } else if ((e.metaKey || e.ctrlKey) && e.key === ",") {
+      e.preventDefault();
+      if (settingsModal) {
+        settingsModal.classList.toggle("open");
+      }
+    }
   });
 
   // Create Resume Submit
@@ -479,6 +538,7 @@ function escapeHtml(str) {
 }
 
 // Start
+initTheme();
 initClient();
 setupEvents();
 loadResumes();
