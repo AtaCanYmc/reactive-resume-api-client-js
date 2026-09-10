@@ -1,74 +1,19 @@
-# Reactive Resume JavaScript/TypeScript SDK (`reactive-resume-api-client-js`)
+<p align="center">
+  <img src="assets/banner.png" alt="Reactive Resume TypeScript SDK" width="100%" />
+</p>
 
-[![npm version](https://img.shields.io/npm/v/reactive-resume-api-client-js.svg)](https://www.npmjs.com/package/reactive-resume-api-client-js)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-blue.svg)](https://www.typescriptlang.org/)
+# reactive-resume-api-client-js
+
+[![npm version](https://img.shields.io/badge/npm-v0.1.0-blue.svg)](https://www.npmjs.com/package/reactive-resume-api-client-js)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/types-TypeScript-blue.svg)](https://www.typescriptlang.org/)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](#)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/AtaCanYmc/reactive-resume-api-client-js/actions/workflows/ci.yml/badge.svg)](https://github.com/AtaCanYmc/reactive-resume-api-client-js/actions/workflows/ci.yml)
 
-An unofficial modern, type-safe TypeScript/JavaScript API Client (SDK) for **Reactive Resume v4**.
+TypeScript and JavaScript SDK for the [Reactive Resume v4](https://rxresu.me) API.
 
-It is built with **zero runtime dependencies** using native web-standard `fetch`, providing seamless isomorphic support across **Node.js (18+)**, **browsers**, **Bun**, **Deno**, and edge runtimes. It includes full TypeScript definitions (`.d.ts`), dual **ESM** and **CommonJS** builds, and maps API errors into descriptive exception classes (`AuthenticationError`, `NotFoundError`, etc.).
-
----
-
-## Features
-
-- **Zero Runtime Dependencies**: Uses native `fetch` and web standards—no Axios or heavy HTTP dependencies.
-- **Dual Module Support**: Seamlessly works with both ESM (`import`) and CommonJS (`require`).
-- **100% Type Safety**: Comprehensive TypeScript types and interfaces for all API payloads and models.
-- **Full API Coverage**:
-  - 📄 **Resumes**: CRUD, import, PDF download (bytes/url), password protection, lock/duplicate, version history, and metrics.
-  - 💼 **Job Applications Tracker**: CRUD, pipeline statistics, bulk import, tags.
-  - 🤖 **AI Agent**: Threads, streaming messages, attachments, action rollback.
-  - 🧠 **AI Tools & Providers**: Resume analysis, PDF/DOCX resume parsing, AI provider CRUD & connection test.
-  - 📊 **Statistics & Flags**: Global user counts, GitHub stars, resume counters, feature flags.
-  - 🔐 **Authentication**: Providers listing, account export, account deletion.
-- **Python SDK Parity**: Supports standard `camelCase` methods as well as `snake_case` aliases for effortless migration from [`reactive-resume-api-client-py`](https://github.com/AtaCanYmc/reactive-resume-api-client-py).
-- **Descriptive Error Handling**: HTTP error responses automatically map to specific error classes (`AuthenticationError`, `NotFoundError`, etc.).
-
----
-
-## Architecture
-
-```mermaid
-graph TD
-    UserApp[User Application / Frontend / Backend] -->|Instantiates| Client[RxResumeClient]
-
-    subgraph "Service Modules"
-        Client --> Auth[auth]
-        Client --> Resumes[resumes]
-        Client --> Applications[applications]
-        Client --> Stats[statistics]
-        Client --> Agent[agent]
-        Client --> AIProviders[aiProviders]
-        Client --> Flags[flags]
-        Client --> AI[ai]
-    end
-
-    Auth -->|Native fetch| Backend[Reactive Resume v4 API Backend]
-    Resumes -->|Native fetch| Backend
-    Applications -->|Native fetch| Backend
-    Stats -->|Native fetch| Backend
-    Agent -->|Native fetch| Backend
-    AIProviders -->|Native fetch| Backend
-    Flags -->|Native fetch| Backend
-    AI -->|Native fetch| Backend
-```
-
----
-
-## Capability Matrix
-
-| Service Module | TypeScript Accessor | Key Methods |
-| :--- | :--- | :--- |
-| **Resumes** | `client.resumes` | `list`, `get`, `create`, `importResume`, `update`, `updatePut`, `delete`, `getPdfUrl`, `downloadPdf`, `tags`, `setPassword`, `removePassword`, `verifyPassword`, `getPublicResume`, `getLatestAnalysis`, `getVersions`, `duplicate`, `lock`, `getStatistics`, `getDailyStatistics` |
-| **Applications** | `client.applications` | `list`, `get`, `create`, `delete`, `listTags`, `getPipelineStats`, `bulkImport` |
-| **Auth** | `client.auth` | `listProviders`, `exportAccount`, `deleteAccount` |
-| **Statistics** | `client.statistics` | `getUsersCount`, `getGithubStars`, `getResumesCount` |
-| **Agent** | `client.agent` | `listThreads`, `getThread`, `deleteThread`, `createThread`, `getOrCreateThreadForResume`, `sendMessage`, `archiveThread`, `stopRun`, `resumeMessageStream`, `createAttachment`, `deleteAttachment`, `revertAction` |
-| **AI Providers** | `client.aiProviders` (`client.ai_providers`) | `list`, `create`, `update`, `delete`, `test` |
-| **AI Functions** | `client.ai` | `parsePdf`, `parseDocx`, `chat`, `analyzeResume` |
-| **Feature Flags** | `client.flags` | `list` |
+Built with **zero runtime dependencies** on standard `fetch`. Works across Node.js (18+), Bun, Deno, Cloudflare Workers, and modern browsers, with dual ESM and CommonJS exports and strict TypeScript declarations.
 
 ---
 
@@ -78,16 +23,10 @@ graph TD
 npm install reactive-resume-api-client-js
 ```
 
-Or using your favorite package manager:
-
 ```bash
-# pnpm
+# Alternative package managers
 pnpm add reactive-resume-api-client-js
-
-# yarn
 yarn add reactive-resume-api-client-js
-
-# bun
 bun add reactive-resume-api-client-js
 ```
 
@@ -95,111 +34,278 @@ bun add reactive-resume-api-client-js
 
 ## Quick Start
 
-### 1. Initialize Client & Create / Import Resume
-
 ```typescript
-import { RxResumeClient, type ResumeImportData } from "reactive-resume-api-client-js";
+import { RxResumeClient } from "reactive-resume-api-client-js";
 
-// Initialize client with either API Key or Bearer Token
 const client = new RxResumeClient({
-  baseUrl: "https://rxresu.me",
-  apiKey: "your_api_key_here", // Or token: "your_jwt_token"
-  timeout: 30000,              // optional timeout in ms (default: 30s)
+  baseUrl: process.env.RXRESUME_BASE_URL || "https://rxresu.me",
+  apiKey: process.env.RXRESUME_API_KEY,
 });
 
 async function main() {
-  const resumeData: ResumeImportData = {
-    title: "Ata Can Yaymacı - Senior Engineer",
-    basics: {
-      name: "Ata Can Yaymacı",
-      headline: "Senior Software Engineer",
-      email: "ata@example.com",
-      phone: "+905555555555",
-      website: "https://example.com",
-    },
-    sections: {},
-  };
+  // 1. List user resumes
+  const resumes = await client.resumes.list();
+  console.log(`Found ${resumes.length} resumes.`);
 
-  try {
-    // 1. Create / Import a new resume
-    const newResume = await client.resumes.importResume(resumeData);
-    console.log(`Created resume: ${newResume.name} (ID: ${newResume.id})`);
+  // 2. Fetch a specific resume
+  const resume = await client.resumes.get(resumes[0].id);
+  console.log(`Resume: ${resume.name} (Slug: ${resume.slug})`);
 
-    // 2. Download compiled PDF as bytes (Uint8Array)
-    const pdfBytes = await client.resumes.downloadPdf(newResume.id);
-    console.log(`Downloaded PDF: ${pdfBytes.byteLength} bytes`);
-
-    // In Node.js, you can write the PDF directly:
-    // import fs from "node:fs/promises";
-    // await fs.writeFile("resume.pdf", pdfBytes);
-
-  } catch (error) {
-    console.error("An error occurred:", error);
-  }
+  // 3. Download compiled PDF bytes (Uint8Array)
+  const pdfBytes = await client.resumes.downloadPdf(resume.id);
+  console.log(`Downloaded ${pdfBytes.byteLength} bytes.`);
 }
 
-main();
+main().catch(console.error);
 ```
 
-### 2. CommonJS Support (`require`)
+### CommonJS Usage
 
 ```javascript
 const { RxResumeClient } = require("reactive-resume-api-client-js");
 
 const client = new RxResumeClient({
   baseUrl: "https://rxresu.me",
-  apiKey: "your_api_key_here",
+  apiKey: process.env.RXRESUME_API_KEY,
 });
-
-async function run() {
-  const resumes = await client.resumes.list();
-  for (const resume of resumes) {
-    console.log(`Resume: ${resume.name} (Slug: ${resume.slug})`);
-  }
-}
-
-run();
 ```
 
-### 3. Job Applications Tracker, AI Agent & Statistics
+---
+
+## Architecture
+
+```mermaid
+flowchart TB
+    subgraph App["Application Layer"]
+        Code["Node.js / Browser / Edge Runtime"]
+    end
+
+    subgraph SDK["RxResumeClient"]
+        direction TB
+        Auth["Authentication Manager<br/>(API Key / Bearer Token)"]
+        Engine["Native Fetch Engine<br/>(Isomorphic · Timeout Signal · Error Mapping)"]
+
+        subgraph Modules["Resource Modules"]
+            Resumes["resumes<br/>CRUD · PDF Export · Versions"]
+            Applications["applications<br/>Job Tracker · Pipelines · Tags"]
+            AgentAI["agent & ai<br/>Assistant Threads · Document Parsing"]
+            Telemetry["auth, statistics, flags<br/>Accounts · Metrics · Feature Flags"]
+        end
+
+        Auth --> Engine
+        Engine --> Modules
+    end
+
+    subgraph API["Reactive Resume v4 Instance"]
+        Endpoints["OpenAPI REST Endpoints<br/>(/api/openapi/*)"]
+    end
+
+    Code -->|Calls SDK API| SDK
+    Modules -->|HTTP Requests| Endpoints
+```
+
+---
+
+## Client Configuration
+
+`RxResumeClient` accepts the following configuration options:
 
 ```typescript
-import { RxResumeClient } from "reactive-resume-api-client-js";
+interface RxResumeClientOptions {
+  baseUrl: string;               // Base URL of your Reactive Resume instance
+  apiKey?: string;              // 'x-api-key' header authentication
+  token?: string;               // 'Authorization: Bearer <token>' authentication
+  timeout?: number;             // Request timeout in milliseconds (default: 30000)
+  fetch?: typeof fetch;         // Custom fetch implementation
+  headers?: Record<string, string>; // Extra headers sent with every request
+}
+```
 
-const client = new RxResumeClient({
-  baseUrl: "https://rxresu.me",
-  apiKey: "your_api_key_here",
+### Dynamic Authentication
+
+You can update authentication credentials at runtime without re-instantiating the client:
+
+```typescript
+// Switch to a Bearer token (removes x-api-key)
+client.setToken("jwt-token-string");
+
+// Switch to an API key (removes Bearer token)
+client.setApiKey("api-key-string");
+```
+
+---
+
+## Resource Modules
+
+### Resumes (`client.resumes`)
+
+Complete management of resumes, versions, access control, and statistics.
+
+```typescript
+// Listing and retrieval
+const resumes = await client.resumes.list();
+const resume = await client.resumes.get("resume-id");
+const publicResume = await client.resumes.getPublicResume("username", "slug");
+
+// Creation and import
+const newResume = await client.resumes.create({
+  title: "Software Engineer",
+  basics: {
+    name: "John Doe",
+    email: "john@example.com",
+  },
 });
 
-// 1. Log a new job application
+// Update (PATCH or PUT)
+await client.resumes.update("resume-id", { name: "Updated Name" });
+await client.resumes.updatePut("resume-id", fullResumeObject);
+
+// Deletion
+await client.resumes.delete("resume-id");
+
+// Export & PDF
+const pdfBytes = await client.resumes.downloadPdf("resume-id"); // Returns Uint8Array
+const pdfUrl = client.resumes.getPdfUrl("resume-id");          // Direct URL string
+
+// Password protection
+await client.resumes.setPassword("resume-id", "secret");
+const isValid = await client.resumes.verifyPassword("resume-id", "secret");
+await client.resumes.removePassword("resume-id");
+
+// Versions, duplication, locking
+const versions = await client.resumes.getVersions("resume-id");
+const duplicate = await client.resumes.duplicate("resume-id", "New Name", "new-slug");
+await client.resumes.lock("resume-id", true);
+
+// Statistics
+const stats = await client.resumes.getStatistics("resume-id");
+const dailyStats = await client.resumes.getDailyStatistics("resume-id", 30);
+const tags = await client.resumes.tags();
+```
+
+---
+
+### Job Applications (`client.applications`)
+
+Track and organize job applications, pipeline status, and tags.
+
+```typescript
+// Create application entry
 const app = await client.applications.create({
-  company: "Google",
-  position: "Staff Software Engineer",
+  company: "Acme Corp",
+  position: "Senior Backend Engineer",
   stage: "Interviewing",
-  summary: "Completed technical interview rounds.",
+  summary: "Completed technical interview.",
+  url: "https://acme.com/jobs/123",
 });
-console.log(`Application logged: ${app.company} (${app.stage})`);
 
-// 2. Start an AI Agent thread and send a message
-const thread = await client.agent.createThread();
+// Query
+const apps = await client.applications.list();
+const appDetails = await client.applications.get(app.id);
+
+// Pipeline statistics and tags
+const stats = await client.applications.getPipelineStats();
+const tags = await client.applications.listTags();
+
+// Bulk import
+await client.applications.bulkImport([
+  { company: "Company A", position: "Lead Dev", stage: "Applied" },
+  { company: "Company B", position: "Staff Dev", stage: "Offered" },
+]);
+
+// Delete
+await client.applications.delete(app.id);
+```
+
+---
+
+### AI Agent (`client.agent`)
+
+Interact with Reactive Resume's AI Assistant threads and streaming actions.
+
+```typescript
+// Create a new thread
+const thread = await client.agent.createThread({
+  sourceResumeId: "resume-id",
+});
+
+// Send message
 const response = await client.agent.sendMessage(
   thread.id,
-  "Suggest 3 strong bullet points for a senior backend engineer role."
+  "Rewrite my work experience summary to highlight distributed systems."
 );
-console.log("AI Suggestion:", response);
 
-// 3. Retrieve global metrics & feature flags
-const usersCount = await client.statistics.getUsersCount();
+// Manage attachments
+await client.agent.createAttachment(
+  thread.id,
+  "portfolio.pdf",
+  "application/pdf",
+  base64Data
+);
+
+// Manage active runs
+await client.agent.stopRun(thread.id);
+await client.agent.archiveThread(thread.id);
+await client.agent.deleteThread(thread.id);
+```
+
+---
+
+### AI Tools & Providers (`client.ai`, `client.aiProviders`)
+
+Parse existing documents and configure custom AI provider connections.
+
+```typescript
+// Parse PDF or DOCX resume into structured data
+const parsedResume = await client.ai.parsePdf("cv.pdf", base64PdfData, "provider-id");
+const parsedDocx = await client.ai.parseDocx("cv.docx", base64DocxData, "provider-id");
+
+// Run AI analysis on an existing resume
+const analysis = await client.ai.analyzeResume("resume-id", "provider-id");
+
+// Configure AI Providers
+const providers = await client.aiProviders.list();
+const newProvider = await client.aiProviders.create({
+  label: "Custom OpenAI",
+  model: "gpt-4o",
+  apiKey: process.env.OPENAI_API_KEY!,
+});
+
+// Test provider connection
+const isWorking = await client.aiProviders.test(newProvider.id);
+```
+
+---
+
+### Statistics & Platform Flags (`client.statistics`, `client.flags`)
+
+Global platform counters and server-side feature flags.
+
+```typescript
+// Global metrics
+const userCount = await client.statistics.getUsersCount();
+const githubStars = await client.statistics.getGithubStars();
+const resumeCount = await client.statistics.getResumesCount();
+
+// Server feature flags
 const flags = await client.flags.list();
-console.log("Total Users:", usersCount);
-console.log("Flags:", flags);
+```
+
+---
+
+### Authentication & Account (`client.auth`)
+
+```typescript
+const providers = await client.auth.listProviders();
+const accountExport = await client.auth.exportAccount();
+await client.auth.deleteAccount();
 ```
 
 ---
 
 ## Error Handling
 
-All HTTP errors are automatically converted into typed exception classes:
+All HTTP errors are mapped to distinct, typed error classes inheriting from `ReactiveResumeAPIError`:
 
 ```typescript
 import {
@@ -210,92 +316,118 @@ import {
   ReactiveResumeError,
 } from "reactive-resume-api-client-js";
 
-const client = new RxResumeClient({
-  baseUrl: "https://rxresu.me",
-  apiKey: "invalid_key",
-});
-
 try {
-  await client.resumes.list();
+  await client.resumes.get("invalid-id");
 } catch (error) {
   if (error instanceof AuthenticationError) {
-    console.error(`Authentication failed (status ${error.statusCode}):`, error.message);
+    // 401 or 403: Invalid API key or expired credentials
+    console.error("Auth failed:", error.statusCode, error.message);
   } else if (error instanceof NotFoundError) {
-    console.error(`Resource not found (status ${error.statusCode}):`, error.message);
+    // 404: Resource does not exist
+    console.error("Not found:", error.message);
   } else if (error instanceof ReactiveResumeAPIError) {
-    console.error(`API Error (status ${error.statusCode}):`, error.message);
+    // Other HTTP 4xx/5xx errors
+    console.error("API Error:", error.statusCode, error.responseBody);
   } else if (error instanceof ReactiveResumeError) {
-    console.error("Network or connection error:", error.message);
+    // Network or connection failure
+    console.error("Network failure:", error.message);
   }
 }
 ```
 
 ---
 
-## Python SDK Migration Guide
+## Important Notes & Best Practices
 
-If you are migrating code from [`rxresume-python`](https://github.com/AtaCanYmc/reactive-resume-api-client-py), all methods support both idiomatic JavaScript camelCase and Python snake_case aliases:
-
-| Python Method | TypeScript (camelCase) | TypeScript (snake_case alias) |
-| :--- | :--- | :--- |
-| `client.resumes.import_resume(data)` | `client.resumes.importResume(data)` | `client.resumes.import_resume(data)` |
-| `client.resumes.download_pdf(id)` | `client.resumes.downloadPdf(id)` | `client.resumes.download_pdf(id)` |
-| `client.ai_providers.list()` | `client.aiProviders.list()` | `client.ai_providers.list()` |
-| `client.applications.list_tags()` | `client.applications.listTags()` | `client.applications.list_tags()` |
-| `client.agent.send_message(id, msg)` | `client.agent.sendMessage(id, msg)` | `client.agent.send_message(id, msg)` |
-| `client.statistics.get_users_count()` | `client.statistics.getUsersCount()` | `client.statistics.get_users_count()` |
-
----
-
-## Development & Testing
-
-1. **Clone repository**:
-   ```bash
-   git clone https://github.com/AtaCanYmc/reactive-resume-api-client-js.git
-   cd reactive-resume-api-client-js
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Run tests**:
-   ```bash
-   npm test
-   ```
-
-4. **Typecheck**:
-   ```bash
-   npm run typecheck
-   ```
-
-5. **Build package**:
-   ```bash
-   npm run build
-   ```
+- **Zero Polyfills in Modern Environments**: This SDK relies exclusively on native `fetch`, `AbortSignal`, and `Uint8Array`. It does not import Axios or node-fetch.
+- **Handling PDF Files**:
+  - In **Node.js**: The downloaded PDF is a `Uint8Array`. Save it directly using `fs.promises.writeFile`:
+    ```typescript
+    import fs from "node:fs/promises";
+    const pdfBytes = await client.resumes.downloadPdf("resume-id");
+    await fs.writeFile("resume.pdf", pdfBytes);
+    ```
+  - In **Browser / Client-side Apps**: Convert the `Uint8Array` to a Blob URL for preview or download:
+    ```typescript
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const previewUrl = URL.createObjectURL(blob);
+    window.open(previewUrl);
+    ```
+- **Document Parsing with AI**: When parsing PDFs or Word documents with `client.ai.parsePdf` or `client.ai.parseDocx`, supply the file contents as a base64-encoded string:
+  ```typescript
+  import fs from "node:fs/promises";
+  const buffer = await fs.readFile("resume.pdf");
+  const base64Data = buffer.toString("base64");
+  const parsed = await client.ai.parsePdf("resume.pdf", base64Data, "provider-id");
+  ```
+- **Self-Hosted Instances**: Trailing slashes in `baseUrl` are automatically normalized (`https://rx.mycompany.com/` becomes `https://rx.mycompany.com`).
+- **Custom Environments & Proxies**: If your environment requires a custom proxy agent, SSL overrides, or request logging, pass a custom `fetch` function into `new RxResumeClient({ baseUrl, fetch: customFetch })`.
 
 ---
 
-## Publishing to npm
+## Frequently Asked Questions (FAQ)
 
-1. Ensure all tests pass and build is up to date:
-   ```bash
-   npm run prepublishOnly
-   ```
+<details>
+<summary><b>Where do I obtain an API key?</b></summary>
 
-2. Log in to npm (if not already logged in):
-   ```bash
-   npm login
-   ```
+Log in to your Reactive Resume instance, go to **Settings > API Keys** (or your profile settings), and create a new API Key. Pass this value as `apiKey` to `RxResumeClient`.
+</details>
 
-3. Publish to npm:
-   ```bash
-   npm publish --access public
-   ```
+<details>
+<summary><b>Can I authenticate using user credentials or JWT tokens?</b></summary>
+
+Yes. If you have a Bearer token (such as a session JWT from Reactive Resume's auth endpoints), pass `token: "your-jwt-token"` in the constructor options or call `client.setToken("your-jwt-token")` at any time.
+</details>
+
+<details>
+<summary><b>Does this client work in serverless and edge environments?</b></summary>
+
+Yes. It is tested and verified for Node.js (18+), Bun, Deno, Cloudflare Workers, Next.js (Edge and Node runtimes), and standard browsers.
+</details>
+
+<details>
+<summary><b>How are network errors and timeouts handled?</b></summary>
+
+Every request respects a timeout (defaulting to 30 seconds, configurable via `timeout`). If a connection drops, times out, or DNS fails, a `ReactiveResumeError` is thrown with the message `"Network or connection error occurred: ..."`.
+</details>
+
+<details>
+<summary><b>Is this 100% compatible with the Python SDK?</b></summary>
+
+Yes. All endpoints, parameters, and return types mirror [`reactive-resume-api-client-py`](https://github.com/AtaCanYmc/reactive-resume-api-client-py). Python developers can use `snake_case` aliases directly (e.g., `client.resumes.download_pdf`).
+</details>
+
+<details>
+<summary><b>How do I mock this SDK in my unit tests?</b></summary>
+
+Because the client accepts a `fetch` override, you can mock responses without external HTTP mocking libraries:
+
+```typescript
+import { describe, it, expect, vi } from "vitest";
+import { RxResumeClient } from "reactive-resume-api-client-js";
+
+it("mocks resume fetching", async () => {
+  const mockFetch = vi.fn().mockResolvedValue(
+    new Response(JSON.stringify({ id: "mock-1", name: "Mock CV" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    })
+  );
+
+  const client = new RxResumeClient({
+    baseUrl: "https://rxresu.me",
+    apiKey: "test",
+    fetch: mockFetch,
+  });
+
+  const resume = await client.resumes.get("mock-1");
+  expect(resume.name).toBe("Mock CV");
+});
+```
+</details>
 
 ---
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+[MIT](LICENSE) &copy; [Ata Can Yaymacı](https://github.com/AtaCanYmc)
