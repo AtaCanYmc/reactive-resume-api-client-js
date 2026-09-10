@@ -7,8 +7,10 @@ services:
     container_name: reactive-resume-demo
     ports:
       - "${PORT:-3000}:3000"
+      - "${WEB_PORT:-3001}:3001"
     environment:
       - PORT=3000
+      - WEB_PORT=3001
       - NODE_ENV=production
     restart: unless-stopped
     healthcheck:
