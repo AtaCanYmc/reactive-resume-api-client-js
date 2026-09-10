@@ -39,10 +39,12 @@ check: typecheck test build ## Run full verification pipeline (typecheck + test 
 build-demo: ## Build SDK and copy bundle into demo/web/vendor
 	npm run build:demo
 
-demo: build-demo ## Start local web demo preview server
-	npm run preview:demo
+demo: build-demo ## Start local demo server (API :3000, Web :3001)
+	@docker compose down 2>/dev/null || true
+	node demo/backend/server.js
 
-docker-up: ## Build and start demo in Docker (port 3000)
+docker-up: ## Build and start demo in Docker (API :3000, Web :3001)
+	@lsof -ti:3000,3001 | xargs kill -9 2>/dev/null || true
 	docker compose up --build -d
 
 docker-down: ## Stop and remove demo container

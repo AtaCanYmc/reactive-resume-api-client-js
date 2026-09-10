@@ -29,6 +29,9 @@ ENV NODE_ENV=production \
 # Copy root package.json for ESM module metadata
 COPY --chown=node:node --from=builder /app/package.json ./package.json
 
+# ponytail: copies full node_modules (includes dev deps); upgrade to 3-stage build if image size matters
+COPY --chown=node:node --from=builder /app/node_modules ./node_modules
+
 # Copy demo directory (contains demo/backend and demo/web with compiled vendor bundle)
 COPY --chown=node:node --from=builder /app/demo ./demo
 
@@ -36,7 +39,7 @@ COPY --chown=node:node --from=builder /app/demo ./demo
 USER node
 
 # Expose unified demo port
-EXPOSE 3000
+EXPOSE 3000 3001
 
 # Health check using native Node.js fetch
 HEALTHCHECK --interval=20s --timeout=3s --start-period=5s --retries=3 \
