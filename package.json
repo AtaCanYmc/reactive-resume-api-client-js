@@ -51,9 +51,10 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "build:demo": "npm run build && mkdir -p demo/web/vendor && cp dist/index.js demo/web/vendor/reactive-resume-api-client.js && cp dist/index.js.map demo/web/vendor/index.js.map",
-    "preview:demo": "npm run build:demo && node demo/web/server.js",
-    "demo": "node demo/web/server.js",
-    "start": "node demo/web/server.js",
+    "preview:demo": "npm run build:demo && node demo/backend/server.js",
+    "demo": "node demo/backend/server.js",
+    "demo:backend": "node demo/backend/server.js",
+    "start": "node demo/backend/server.js",
     "prepublishOnly": "npm run build && npm test"
   },
   "devDependencies": {
