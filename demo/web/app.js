@@ -6,6 +6,7 @@
 
 import { RxResumeClient } from "./vendor/reactive-resume-api-client.js";
 import { createMockFetch } from "./mock-data.js";
+import { initLanguage, applyLanguage, t } from "./i18n.js";
 
 // Application State
 let client = null;
@@ -102,7 +103,7 @@ function initClient() {
 
   if (isSandbox) {
     modeBadge.className = "mode-badge sandbox";
-    modeText.textContent = "Sandbox Mode (Mock Data)";
+    modeText.textContent = t("sandboxBadge");
     client = new RxResumeClient({
       baseUrl,
       apiKey: "sandbox-demo-key",
@@ -116,7 +117,7 @@ const client = new RxResumeClient({
 });`);
   } else {
     modeBadge.className = "mode-badge live";
-    modeText.textContent = "Live Instance Mode";
+    modeText.textContent = t("liveBadge");
     client = new RxResumeClient({
       baseUrl,
       ...(apiKey ? { apiKey } : {}),
@@ -142,7 +143,7 @@ const resumes = await client.resumes.list();
     resumesList.innerHTML = "";
     if (resumes.length === 0) {
       resumesList.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--color-muted); padding: 3rem;">
-        No resumes found. Click "+ Create Resume" to get started.
+        ${escapeHtml(t("noResumes"))}
       </div>`;
       return;
     }
@@ -163,18 +164,18 @@ const resumes = await client.resumes.list();
             </div>
           </div>
           <p style="font-size: 0.78rem; color: var(--color-dim); margin-top: 0.5rem; font-family: var(--font-mono);">
-            Updated: ${new Date(resume.updatedAt || resume.updated_at || Date.now()).toLocaleDateString()}
+            ${escapeHtml(t("updatedPrefix"))} ${new Date(resume.updatedAt || resume.updated_at || Date.now()).toLocaleDateString()}
           </p>
         </div>
         <div class="resume-actions">
           <button class="btn btn-sm btn-primary download-pdf-btn" data-id="${resume.id}" data-name="${escapeHtml(resume.name)}">
-            Download PDF
+            ${escapeHtml(t("downloadPdf"))}
           </button>
           <button class="btn btn-sm preview-pdf-btn" data-id="${resume.id}" data-name="${escapeHtml(resume.name)}">
-            Preview
+            ${escapeHtml(t("previewPdf"))}
           </button>
           <button class="btn btn-sm btn-danger delete-resume-btn" data-id="${resume.id}">
-            Delete
+            ${escapeHtml(t("deleteBtn"))}
           </button>
         </div>
       `;
@@ -192,14 +193,14 @@ const resumes = await client.resumes.list();
       btn.addEventListener("click", () => handleDeleteResume(btn.dataset.id));
     });
   } catch (error) {
-    showToast(`Error fetching resumes: ${error.message}`, true);
+    showToast(`${t("toastErrorLoadingResumes")} ${error.message}`, true);
   }
 }
 
 // Download PDF
 async function handleDownloadPdf(resumeId, resumeName) {
   try {
-    showToast("Downloading compiled PDF...");
+    showToast(t("toastPdfDownloading"));
     const pdfBytes = await client.resumes.downloadPdf(resumeId);
 
     recordCode(`// Download compiled PDF as Uint8Array bytes
@@ -216,16 +217,16 @@ console.log("PDF Bytes received:", pdfBytes.byteLength);`);
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    showToast("PDF downloaded successfully!");
+    showToast(t("toastPdfDownloaded"));
   } catch (error) {
-    showToast(`Failed to download PDF: ${error.message}`, true);
+    showToast(`${t("toastErrorDownloadingPdf")} ${error.message}`, true);
   }
 }
 
 // Preview PDF
 async function handlePreviewPdf(resumeId, resumeName) {
   try {
-    showToast("Generating PDF preview...");
+    showToast(t("toastPdfPreviewing"));
     const pdfBytes = await client.resumes.downloadPdf(resumeId);
 
     if (currentBlobUrl) {
@@ -235,7 +236,7 @@ async function handlePreviewPdf(resumeId, resumeName) {
     const blob = new Blob([pdfBytes], { type: "application/pdf" });
     currentBlobUrl = URL.createObjectURL(blob);
 
-    pdfModalTitle.textContent = `Preview: ${resumeName || "Resume"}`;
+    pdfModalTitle.textContent = `${t("previewPdf")}: ${resumeName || "Resume"}`;
     pdfFrame.src = currentBlobUrl;
     pdfDownloadLink.href = currentBlobUrl;
     pdfDownloadLink.download = `${resumeName || "resume"}.pdf`;
@@ -248,16 +249,16 @@ const blob = new Blob([pdfBytes], { type: "application/pdf" });
 const previewUrl = URL.createObjectURL(blob);
 iframe.src = previewUrl;`);
   } catch (error) {
-    showToast(`Failed to preview PDF: ${error.message}`, true);
+    showToast(`${t("toastErrorPreviewingPdf")} ${error.message}`, true);
   }
 }
 
 // Delete Resume
 async function handleDeleteResume(resumeId) {
-  if (!confirm("Are you sure you want to delete this resume?")) return;
+  if (!confirm(t("toastConfirmDeleteResume"))) return;
   try {
     await client.resumes.delete(resumeId);
-    showToast("Resume deleted successfully.");
+    showToast(t("toastResumeDeleted"));
     recordCode(`// Delete resume
 await client.resumes.delete("${resumeId}");`);
     await loadResumes();
@@ -293,7 +294,7 @@ const applications = await client.applications.list();
       card.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
           <span class="kanban-company">${escapeHtml(app.company)}</span>
-          <button class="btn-icon delete-app-btn" data-id="${app.id}" title="Delete Application" style="width: 22px; height: 22px; font-size: 0.65rem;">✕</button>
+          <button class="btn-icon delete-app-btn" data-id="${app.id}" title="${escapeHtml(t("deleteBtn"))}" style="width: 22px; height: 22px; font-size: 0.65rem;">✕</button>
         </div>
         <p class="kanban-pos">${escapeHtml(app.position)}</p>
         ${app.summary ? `<p class="kanban-notes">${escapeHtml(app.summary)}</p>` : ""}
@@ -313,7 +314,7 @@ const applications = await client.applications.list();
     countOffered.textContent = counts.Offered;
     countRejected.textContent = counts.Rejected;
   } catch (error) {
-    showToast(`Error fetching applications: ${error.message}`, true);
+    showToast(`${t("toastErrorLoadingApps")} ${error.message}`, true);
   }
 }
 
@@ -321,7 +322,7 @@ const applications = await client.applications.list();
 async function handleDeleteApp(appId) {
   try {
     await client.applications.delete(appId);
-    showToast("Application removed.");
+    showToast(t("toastAppDeleted"));
     recordCode(`// Delete job application
 await client.applications.delete("${appId}");`);
     await loadApplications();
@@ -377,7 +378,7 @@ function setupEvents() {
     loadApplications();
     loadStatistics();
     if (!sandboxToggle.checked && !apiKeyInput.value.trim()) {
-      showToast("Switched to Live Mode. For private endpoints, get your API key from Settings → API Keys.");
+      showToast(t("toastSwitchedLive"));
     }
   });
 
@@ -425,6 +426,21 @@ function setupEvents() {
     });
   });
 
+  // Language selection listener
+  document.querySelectorAll('input[name="langSelect"]').forEach((radio) => {
+    radio.addEventListener("change", (e) => {
+      const lang = e.target.value;
+      applyLanguage(lang);
+      if (sandboxToggle.checked) {
+        modeText.textContent = t("sandboxBadge");
+      } else {
+        modeText.textContent = t("liveBadge");
+      }
+      loadResumes();
+      loadApplications();
+    });
+  });
+
   // Modal close buttons and backdrop clicks
   document.querySelectorAll(".closeModalBtn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -459,7 +475,7 @@ function setupEvents() {
     const headline = document.getElementById("newResumeHeadline").value.trim();
 
     if (!title) {
-      showToast("Resume title is required.", true);
+      showToast(t("toastTitleRequired"), true);
       return;
     }
 
@@ -474,7 +490,7 @@ function setupEvents() {
       };
 
       await client.resumes.create(payload);
-      showToast("Resume created successfully!");
+      showToast(t("toastResumeCreated"));
       createResumeModal.classList.remove("open");
       document.getElementById("newResumeTitle").value = "";
       document.getElementById("newResumeSlug").value = "";
@@ -485,7 +501,7 @@ const newResume = await client.resumes.create(${JSON.stringify(payload, null, 2)
 
       await loadResumes();
     } catch (error) {
-      showToast(`Error creating resume: ${error.message}`, true);
+      showToast(`${t("toastErrorCreatingResume")} ${error.message}`, true);
     }
   });
 
@@ -497,14 +513,14 @@ const newResume = await client.resumes.create(${JSON.stringify(payload, null, 2)
     const summary = document.getElementById("newAppSummary").value.trim();
 
     if (!company || !position) {
-      showToast("Company and position are required.", true);
+      showToast(t("toastCompanyRequired"), true);
       return;
     }
 
     try {
       const payload = { company, position, stage, summary };
       await client.applications.create(payload);
-      showToast("Application logged successfully!");
+      showToast(t("toastAppLogged"));
       createAppModal.classList.remove("open");
       document.getElementById("newAppCompany").value = "";
       document.getElementById("newAppPosition").value = "";
@@ -515,14 +531,14 @@ const app = await client.applications.create(${JSON.stringify(payload, null, 2)}
 
       await loadApplications();
     } catch (error) {
-      showToast(`Error logging application: ${error.message}`, true);
+      showToast(`${t("toastErrorLoggingApp")} ${error.message}`, true);
     }
   });
 
   // Copy Code Snippet
   document.getElementById("copyCodeBtn").addEventListener("click", () => {
     navigator.clipboard.writeText(lastExecutedCode.textContent).then(() => {
-      showToast("Snippet copied to clipboard!");
+      showToast(t("toastCopied"));
     });
   });
 }
@@ -538,6 +554,7 @@ function escapeHtml(str) {
 }
 
 // Start
+initLanguage();
 initTheme();
 initClient();
 setupEvents();

@@ -1057,6 +1057,19 @@ select:focus:not(:focus-visible) {
   margin-top: var(--space-3xs);
 }
 
+.lang-options {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-2xs);
+  margin-top: var(--space-3xs);
+}
+
+@media (max-width: 600px) {
+  .lang-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 .theme-option {
   cursor: pointer;
   position: relative;
