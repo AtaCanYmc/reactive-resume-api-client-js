@@ -17,7 +17,7 @@ import type { RequestOptions, RxResumeClientOptions } from "./types/common.js";
 /**
  * Modern, type-safe API Client for Reactive Resume v4.
  *
- * Built with native fetch, supporting Node 18+, Bun, Deno, and modern browsers with zero runtime dependencies.
+ * Built with native fetch, supporting Node 20+, Bun, Deno, and modern browsers with zero runtime dependencies.
  */
 export class RxResumeClient {
   readonly baseUrl: string;

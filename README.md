@@ -5,7 +5,7 @@
 # reactive-resume-api-client-js
 
 [![npm version](https://img.shields.io/badge/npm-v0.1.0-blue.svg)](https://www.npmjs.com/package/reactive-resume-api-client-js)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/types-TypeScript-blue.svg)](https://www.typescriptlang.org/)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](#)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -13,7 +13,7 @@
 
 TypeScript and JavaScript SDK for the [Reactive Resume v4](https://rxresu.me) API.
 
-Built with **zero runtime dependencies** on standard `fetch`. Works across Node.js (18+), Bun, Deno, Cloudflare Workers, and modern browsers, with dual ESM and CommonJS exports and strict TypeScript declarations.
+Built with **zero runtime dependencies** on standard `fetch`. Works across Node.js (20+), Bun, Deno, Cloudflare Workers, and modern browsers, with dual ESM and CommonJS exports and strict TypeScript declarations.
 
 ---
 
@@ -395,7 +395,7 @@ Yes. If you have a Bearer token (such as a session JWT from Reactive Resume's au
 <details>
 <summary><b>Does this client work in serverless and edge environments?</b></summary>
 
-Yes. It is tested and verified for Node.js (18+), Bun, Deno, Cloudflare Workers, Next.js (Edge and Node runtimes), and standard browsers.
+Yes. It is tested and verified for Node.js (20+), Bun, Deno, Cloudflare Workers, Next.js (Edge and Node runtimes), and standard browsers.
 </details>
 
 <details>
