@@ -189,6 +189,10 @@ export const translations = {
     toastErrorDeletingApp: "Error deleting application:",
     toastErrorFetchingStatistics: "Error fetching statistics:",
     toastErrorLoadingAiProviders: "Error loading AI providers:",
+    corsBannerTitle: "Browser CORS Restriction: rxresu.me does not allow direct cross-origin browser requests. Run 'npm start' in terminal for the local proxy (http://localhost:3000), or switch to Offline Sandbox Mode.",
+    corsBannerAction: "Switch to Sandbox",
+    corsBannerDismiss: "Dismiss",
+    corsProxyError: "Live connection blocked by browser CORS. Start local proxy with 'npm start' or switch to Sandbox Mode.",
   },
 
   tr: {
@@ -373,6 +377,10 @@ export const translations = {
     toastErrorDeletingApp: "Başvuru silinirken hata:",
     toastErrorFetchingStatistics: "İstatistikler alınırken hata:",
     toastErrorLoadingAiProviders: "Yapay zeka sağlayıcıları yüklenirken hata:",
+    corsBannerTitle: "Tarayıcı CORS Kısıtlaması: rxresu.me harici tarayıcılardan doğrudan isteklere izin vermiyor. Yerel proxy ile bağlanmak için terminalde 'npm start' çalıştırın veya Çevrimdışı Sandbox Modu'na geçin.",
+    corsBannerAction: "Sandbox Moduna Geç",
+    corsBannerDismiss: "Kapat",
+    corsProxyError: "Canlı bağlantı tarayıcı CORS kısıtlamasına takıldı. 'npm start' ile yerel proxy'yi başlatın veya Sandbox Moduna geçin.",
   },
 
   de: {
@@ -557,6 +565,10 @@ export const translations = {
     toastErrorDeletingApp: "Fehler beim Löschen der Bewerbung:",
     toastErrorFetchingStatistics: "Fehler beim Abrufen der Statistiken:",
     toastErrorLoadingAiProviders: "Fehler beim Laden der KI-Anbieter:",
+    corsBannerTitle: "Browser-CORS-Einschränkung: rxresu.me erlaubt keine direkten browserübergreifenden Anfragen. Starten Sie 'npm start' im Terminal für den lokalen Proxy oder wechseln Sie in den Offline-Sandbox-Modus.",
+    corsBannerAction: "In Sandbox-Modus wechseln",
+    corsBannerDismiss: "Schließen",
+    corsProxyError: "Live-Verbindung durch Browser-CORS blockiert. Starten Sie den Proxy mit 'npm start' oder wechseln Sie in den Sandbox-Modus.",
   },
 
   fr: {
@@ -741,6 +753,10 @@ export const translations = {
     toastErrorDeletingApp: "Erreur lors de la suppression de la candidature :",
     toastErrorFetchingStatistics: "Erreur lors de la récupération des statistiques :",
     toastErrorLoadingAiProviders: "Erreur lors du chargement des fournisseurs d'IA :",
+    corsBannerTitle: "Restriction CORS du navigateur : rxresu.me n'autorise pas les requêtes directes entre origines. Lancez 'npm start' dans le terminal pour le proxy local ou passez en mode Bac à sable hors ligne.",
+    corsBannerAction: "Passer au Bac à sable",
+    corsBannerDismiss: "Ignorer",
+    corsProxyError: "Connexion directe bloquée par le CORS. Lancez le proxy local avec 'npm start' ou passez en mode Bac à sable.",
   },
 
   es: {
@@ -925,6 +941,10 @@ export const translations = {
     toastErrorDeletingApp: "Error al eliminar la candidatura:",
     toastErrorFetchingStatistics: "Error al obtener estadísticas:",
     toastErrorLoadingAiProviders: "Error al cargar proveedores de IA:",
+    corsBannerTitle: "Restricción CORS del navegador: rxresu.me no permite peticiones directas entre dominios. Ejecuta 'npm start' en la terminal para el proxy local o cambia al modo Sandbox sin conexión.",
+    corsBannerAction: "Cambiar a Sandbox",
+    corsBannerDismiss: "Descartar",
+    corsProxyError: "Conexión en vivo bloqueada por CORS del navegador. Inicia el proxy con 'npm start' o pasa a modo Sandbox.",
   },
 };
 

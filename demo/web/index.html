@@ -51,6 +51,18 @@
   <!-- Main Container -->
   <main class="container">
 
+    <!-- CORS Warning Banner -->
+    <aside id="corsWarningBanner" class="cors-banner" role="alert" style="display: none;">
+      <div class="cors-banner-content">
+        <span class="cors-banner-icon" aria-hidden="true">⚠️</span>
+        <span id="corsBannerText" data-i18n="corsBannerTitle">Browser CORS Restriction: rxresu.me does not allow direct cross-origin browser requests. Run 'npm start' in terminal for the local proxy (http://localhost:3000), or switch to Offline Sandbox Mode.</span>
+      </div>
+      <div class="cors-banner-actions">
+        <button id="corsSwitchToSandboxBtn" class="btn btn-sm btn-primary" data-i18n="corsBannerAction">Switch to Sandbox</button>
+        <button id="corsDismissBannerBtn" class="btn btn-sm btn-ghost" data-i18n="corsBannerDismiss">Dismiss</button>
+      </div>
+    </aside>
+
     <!-- Client Configuration Card -->
     <section class="config-card" aria-labelledby="config-heading">
       <div class="config-topbar">

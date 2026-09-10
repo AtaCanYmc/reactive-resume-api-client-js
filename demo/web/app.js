@@ -164,31 +164,77 @@ function recordCode(snippet) {
   }
 }
 
+// Helper: Resolve the active proxy URL (supports port 3000, WebStorm 63342, LiveServer 5500, file://, etc.)
+function getProxyBaseUrl() {
+  if (typeof window === "undefined") return null;
+  // If demo is running directly on port 3000
+  if (window.location.port === "3000") {
+    return "/proxy";
+  }
+  // If running from WebStorm (port 63342), Live Server (port 5500), file://, etc.
+  return "http://localhost:3000/proxy";
+}
+
+function showCorsNotice() {
+  const banner = document.getElementById("corsWarningBanner");
+  if (banner) {
+    banner.style.display = "flex";
+  }
+}
+
+function hideCorsNotice() {
+  const banner = document.getElementById("corsWarningBanner");
+  if (banner) {
+    banner.style.display = "none";
+  }
+}
+
 // Helper: Create Live Fetch wrapper (bypasses browser CORS via local server proxy)
 function createLiveFetch() {
-  const isLocalServer =
-    typeof window !== "undefined" &&
-    (window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1" ||
-      window.location.hostname === "0.0.0.0");
-
   return async (input, init) => {
     const urlStr = typeof input === "string" ? input : (input && input.url ? input.url : String(input));
+    const proxyBase = getProxyBaseUrl();
 
-    // If running on local Node server and target is cross-origin, route through /proxy
-    if (isLocalServer) {
+    let targetUrl;
+    try {
+      targetUrl = new URL(urlStr, typeof window !== "undefined" ? window.location.href : "http://localhost");
+    } catch {
+      return fetch(input, init);
+    }
+
+    const isRxResume = targetUrl.hostname === "rxresu.me" || targetUrl.hostname.endsWith(".rxresu.me");
+    const isCrossOrigin = typeof window !== "undefined" && targetUrl.origin !== window.location.origin;
+
+    // For rxresu.me or cross-origin targets, route via local proxy
+    if (proxyBase && (isRxResume || isCrossOrigin)) {
+      const proxyUrl = `${proxyBase}?url=${encodeURIComponent(targetUrl.href)}`;
       try {
-        const targetUrl = new URL(urlStr, window.location.href);
-        if (targetUrl.origin !== window.location.origin) {
-          const proxyUrl = `/proxy?url=${encodeURIComponent(targetUrl.href)}`;
-          return await fetch(proxyUrl, init);
+        const response = await fetch(proxyUrl, init);
+        hideCorsNotice();
+        return response;
+      } catch (proxyErr) {
+        console.warn("[ReactiveResume SDK] Proxy request to", proxyUrl, "failed:", proxyErr);
+        // If proxy failed and target is rxresu.me, direct fetch is guaranteed to fail with CORS preflight 404
+        if (isRxResume) {
+          showCorsNotice();
+          showToast(t("corsProxyError"), true);
+          throw new Error(t("corsProxyError"));
         }
-      } catch {
-        // Fall back to direct fetch on URL parse failure
       }
     }
 
-    return fetch(input, init);
+    // Direct fetch (for self-hosted instances with CORS enabled or same-origin hosts)
+    try {
+      const response = await fetch(input, init);
+      hideCorsNotice();
+      return response;
+    } catch (fetchErr) {
+      if (isRxResume || isCrossOrigin) {
+        showCorsNotice();
+        showToast(t("corsProxyError"), true);
+      }
+      throw fetchErr;
+    }
   };
 }
 
@@ -796,6 +842,9 @@ function setupEvents() {
   });
 
   sandboxToggle.addEventListener("change", () => {
+    if (sandboxToggle.checked) {
+      hideCorsNotice();
+    }
     saveCredentials();
     initClient();
     loadResumes();
@@ -805,6 +854,26 @@ function setupEvents() {
       showToast(t("toastSwitchedLive"));
     }
   });
+
+  // CORS Banner Actions
+  const corsSwitchBtn = document.getElementById("corsSwitchToSandboxBtn");
+  if (corsSwitchBtn) {
+    corsSwitchBtn.addEventListener("click", () => {
+      sandboxToggle.checked = true;
+      hideCorsNotice();
+      saveCredentials();
+      initClient();
+      loadResumes();
+      loadApplications();
+      loadStatistics();
+      showToast(`${t("toastSandboxActive")} 180ms)`);
+    });
+  }
+
+  const corsDismissBtn = document.getElementById("corsDismissBannerBtn");
+  if (corsDismissBtn) {
+    corsDismissBtn.addEventListener("click", hideCorsNotice);
+  }
 
   // Tab Navigation
   document.querySelectorAll(".tab-btn").forEach((btn) => {

@@ -309,6 +309,42 @@ select:focus:not(:focus-visible) {
   gap: var(--space-lg);
 }
 
+/* CORS / Proxy Warning Banner */
+.cors-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 0.85rem 1.15rem;
+  background-color: var(--color-status-warn-bg);
+  border: 1px solid var(--color-status-warn);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  color: var(--color-ink);
+  line-height: 1.45;
+  box-shadow: var(--shadow-subtle);
+}
+
+.cors-banner-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  flex: 1;
+}
+
+.cors-banner-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.cors-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+
 /* Client Connection Config Card */
 .config-card {
   background-color: var(--color-paper-elevated);
