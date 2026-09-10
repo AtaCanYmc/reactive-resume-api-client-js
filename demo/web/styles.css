@@ -386,9 +386,27 @@ select:focus:not(:focus-visible) {
   font-family: var(--font-body);
 }
 
-.field-hint {
-  color: var(--color-muted);
-  font-weight: 400;
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-xs);
+}
+
+.helper-link {
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  color: var(--color-accent);
+  text-decoration: none;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.helper-link:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* Inputs & Controls */

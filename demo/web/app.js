@@ -18,6 +18,14 @@ const sandboxToggle = document.getElementById("sandboxToggle");
 const applyConfigBtn = document.getElementById("applyConfigBtn");
 const modeBadge = document.getElementById("modeBadge");
 const modeText = document.getElementById("modeText");
+const getKeyLink = document.getElementById("getKeyLink");
+
+function updateApiKeyLink() {
+  if (!getKeyLink) return;
+  const raw = baseUrlInput.value.trim() || "https://rxresu.me";
+  const baseUrl = raw.replace(/\/+$/, "");
+  getKeyLink.href = `${baseUrl}/dashboard/settings/api-keys`;
+}
 
 const resumesList = document.getElementById("resumesList");
 const resumesTabCount = document.getElementById("resumesTabCount");
@@ -329,6 +337,9 @@ const [users, stars, resumes, flags] = await Promise.all([
 // Setup Event Listeners
 function setupEvents() {
   // Config Apply
+  baseUrlInput.addEventListener("input", updateApiKeyLink);
+  baseUrlInput.addEventListener("change", updateApiKeyLink);
+
   applyConfigBtn.addEventListener("click", () => {
     initClient();
     loadResumes();
@@ -342,6 +353,9 @@ function setupEvents() {
     loadResumes();
     loadApplications();
     loadStatistics();
+    if (!sandboxToggle.checked && !apiKeyInput.value.trim()) {
+      showToast("Switched to Live Mode. For private endpoints, get your API key from Settings → API Keys.");
+    }
   });
 
   // Tab Navigation

@@ -65,7 +65,10 @@
         </div>
 
         <div class="form-group flex-1">
-          <label for="apiKeyInput" class="field-label">API Key / Bearer Token <span class="field-hint">(optional in sandbox)</span></label>
+          <div class="label-row">
+            <label for="apiKeyInput" class="field-label">API Key / Bearer Token <span class="field-hint">(optional in sandbox)</span></label>
+            <a href="https://rxresu.me/dashboard/settings/api-keys" target="_blank" rel="noopener noreferrer" class="helper-link" id="getKeyLink" title="Open Reactive Resume API Keys Settings">Get API Key &nearr;</a>
+          </div>
           <input type="password" id="apiKeyInput" class="input input-mono" placeholder="Enter x-api-key or Bearer token" autocomplete="off" />
         </div>
 
