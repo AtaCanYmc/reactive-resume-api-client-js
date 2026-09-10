@@ -486,7 +486,7 @@ const server = http.createServer(async (req, res) => {
   fs.createReadStream(filePath).pipe(res);
 });
 
-server.listen(PORT, "0.0.0.0", () => {
+server.listen(PORT, () => {
   console.log(`\n======================================================`);
   console.log(`  Reactive Resume Demo Backend Server`);
   console.log(`  Port:      ${PORT}`);

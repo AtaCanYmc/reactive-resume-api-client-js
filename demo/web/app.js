@@ -22,10 +22,14 @@ const modeText = document.getElementById("modeText");
 const getKeyLink = document.getElementById("getKeyLink");
 const openInstanceLink = document.getElementById("openInstanceLink");
 
+function isLocalHost(hostname) {
+  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]" || hostname === "::1";
+}
+
 function isLocalBackendUrl(url) {
   try {
     const parsed = new URL(url, typeof window !== "undefined" ? window.location.href : "http://localhost:3000");
-    return (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") && (parsed.port === "3000" || (typeof window !== "undefined" && window.location.port === "3000"));
+    return isLocalHost(parsed.hostname) && (parsed.port === "3000" || (typeof window !== "undefined" && window.location.port === "3000"));
   } catch {
     return false;
   }
@@ -111,9 +115,10 @@ function initSavedSettings() {
   if (savedBaseUrl && baseUrlInput) {
     baseUrlInput.value = savedBaseUrl;
   } else if (baseUrlInput) {
+    const host = (typeof window !== "undefined" && window.location.hostname && isLocalHost(window.location.hostname)) ? window.location.hostname : "localhost";
     baseUrlInput.value = (typeof window !== "undefined" && window.location.port === "3000")
       ? window.location.origin
-      : "http://localhost:3000";
+      : `http://${host}:3000`;
   }
 
   const savedSandbox = localStorage.getItem(SANDBOX_STORAGE_KEY);
@@ -189,7 +194,9 @@ function getProxyBaseUrl() {
     return "/proxy";
   }
   // If running from WebStorm (port 63342), Live Server (port 5500), file://, etc.
-  return "http://localhost:3000/proxy";
+  const host = (window.location.hostname && isLocalHost(window.location.hostname)) ? window.location.hostname : "localhost";
+  const protocol = window.location.protocol === "https:" ? "https:" : "http:";
+  return `${protocol}//${host}:3000/proxy`;
 }
 
 function showCorsNotice() {
@@ -214,12 +221,12 @@ function createLiveFetch() {
 
     let targetUrl;
     try {
-      targetUrl = new URL(urlStr, typeof window !== "undefined" ? window.location.href : "http://localhost");
+      targetUrl = new URL(urlStr, typeof window !== "undefined" ? window.location.href : "http://localhost:3000");
     } catch {
       return fetch(input, init);
     }
 
-    const isLocalBackend = (targetUrl.hostname === "localhost" || targetUrl.hostname === "127.0.0.1") && (targetUrl.port === "3000" || (typeof window !== "undefined" && window.location.port === "3000"));
+    const isLocalBackend = isLocalHost(targetUrl.hostname) && (targetUrl.port === "3000" || (typeof window !== "undefined" && window.location.port === "3000"));
     const isRxResume = targetUrl.hostname === "rxresu.me" || targetUrl.hostname.endsWith(".rxresu.me");
     const isCrossOrigin = typeof window !== "undefined" && targetUrl.origin !== window.location.origin;
 
@@ -230,6 +237,16 @@ function createLiveFetch() {
         hideCorsNotice();
         return response;
       } catch (err) {
+        // Fallback: If 'localhost' had IPv6/IPv4 socket issues in WebKit/Safari, retry with 127.0.0.1
+        if (targetUrl.hostname === "localhost") {
+          try {
+            const fallbackUrl = new URL(targetUrl.href);
+            fallbackUrl.hostname = "127.0.0.1";
+            const response = await fetch(fallbackUrl.href, init);
+            hideCorsNotice();
+            return response;
+          } catch {}
+        }
         console.warn("[ReactiveResume SDK] Direct call to local demo backend failed:", err);
         throw err;
       }
@@ -243,6 +260,15 @@ function createLiveFetch() {
         hideCorsNotice();
         return response;
       } catch (proxyErr) {
+        // Fallback: retry with 127.0.0.1 if localhost proxy failed in browser
+        if (proxyUrl.includes("://localhost:")) {
+          try {
+            const fallbackProxy = proxyUrl.replace("://localhost:", "://127.0.0.1:");
+            const response = await fetch(fallbackProxy, init);
+            hideCorsNotice();
+            return response;
+          } catch {}
+        }
         console.warn("[ReactiveResume SDK] Proxy request to", proxyUrl, "failed:", proxyErr);
         // If proxy failed and target is rxresu.me, direct fetch is guaranteed to fail with CORS preflight 404
         if (isRxResume) {
@@ -896,9 +922,10 @@ function setupEvents() {
   const presetLocalBtn = document.getElementById("presetLocalBackendBtn");
   if (presetLocalBtn) {
     presetLocalBtn.addEventListener("click", () => {
+      const host = (typeof window !== "undefined" && window.location.hostname && isLocalHost(window.location.hostname)) ? window.location.hostname : "localhost";
       baseUrlInput.value = (typeof window !== "undefined" && window.location.port === "3000")
         ? window.location.origin
-        : "http://localhost:3000";
+        : `http://${host}:3000`;
       sandboxToggle.checked = false;
       hideCorsNotice();
       updateBaseUrlLinks();
