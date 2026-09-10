@@ -254,12 +254,12 @@ const resumes = await client.resumes.list();
         <div>
           <div class="resume-header">
             <div>
-              <h3 class="resume-name">${escapeHtml(resume.name || "Untitled")}</h3>
+              <h3 class="resume-name">${escapeHtml(resume.name || t("untitledResume"))}</h3>
               <p class="resume-slug">/${escapeHtml(resume.slug || resume.id)}</p>
             </div>
             <div class="resume-meta">
               <span class="pill ${resume.visibility === "public" ? "pill-public" : ""}">${resume.visibility || "private"}</span>
-              ${resume.locked ? `<span class="pill pill-locked">locked</span>` : ""}
+              ${resume.locked ? `<span class="pill pill-locked">${escapeHtml(t("pillLocked"))}</span>` : ""}
             </div>
           </div>
           <p style="font-size: 0.78rem; color: var(--color-dim); margin-top: 0.5rem; font-family: var(--font-mono);">
@@ -340,7 +340,7 @@ async function handlePreviewPdf(resumeId, resumeName) {
     const blob = new Blob([pdfBytes], { type: "application/pdf" });
     currentBlobUrl = URL.createObjectURL(blob);
 
-    pdfModalTitle.textContent = `${t("previewPdf")}: ${resumeName || "Resume"}`;
+    pdfModalTitle.textContent = `${t("previewPdf")}: ${resumeName || t("untitledResume")}`;
     pdfFrame.src = currentBlobUrl;
     pdfDownloadLink.href = currentBlobUrl;
     pdfDownloadLink.download = `${resumeName || "resume"}.pdf`;
@@ -367,7 +367,7 @@ async function handleDeleteResume(resumeId) {
 await client.resumes.delete("${resumeId}");`);
     await loadResumes();
   } catch (error) {
-    showToast(`Error deleting resume: ${error.message}`, true);
+    showToast(`${t("toastErrorDeletingResume")} ${error.message}`, true);
   }
 }
 
@@ -431,7 +431,7 @@ async function handleDeleteApp(appId) {
 await client.applications.delete("${appId}");`);
     await loadApplications();
   } catch (error) {
-    showToast(`Error deleting application: ${error.message}`, true);
+    showToast(`${t("toastErrorDeletingApp")} ${error.message}`, true);
   }
 }
 
@@ -468,7 +468,7 @@ const [users, stars, resumes, flags] = await Promise.all([
   client.flags.list(),
 ]);`);
   } catch (error) {
-    showToast(`Error fetching statistics: ${error.message}`, true);
+    showToast(`${t("toastErrorFetchingStatistics")} ${error.message}`, true);
   }
 }
 
@@ -500,11 +500,11 @@ const providers = await client.aiProviders.list();
       card.innerHTML = `
         <div class="resume-header">
           <div>
-            <h3 class="resume-name">${escapeHtml(provider.label || "AI Provider")}</h3>
+            <h3 class="resume-name">${escapeHtml(provider.label || t("defaultAiProviderLabel"))}</h3>
             <p class="resume-slug">model: <code>${escapeHtml(provider.model || "default")}</code></p>
           </div>
           <div class="resume-meta">
-            <span class="pill status-pill ${provider.apiKey ? "active" : "locked"}">${provider.apiKey ? "Ready" : "No Key"}</span>
+            <span class="pill status-pill ${provider.apiKey ? "active" : "locked"}">${provider.apiKey ? escapeHtml(t("statusReady")) : escapeHtml(t("statusNoKey"))}</span>
           </div>
         </div>
 
@@ -530,7 +530,7 @@ const result = await client.aiProviders.test("${provider.id}");`);
           btn.textContent = "✓ OK";
           setTimeout(() => { btn.textContent = t("testProviderBtn"); btn.disabled = false; }, 3000);
         } catch (err) {
-          showToast(`Test failed: ${err.message}`, true);
+          showToast(`${t("toastTestFailed")} ${err.message}`, true);
           btn.textContent = "✕ Error";
           setTimeout(() => { btn.textContent = t("testProviderBtn"); btn.disabled = false; }, 3000);
         }
@@ -544,14 +544,14 @@ await client.aiProviders.delete("${provider.id}");`);
           showToast(t("toastProviderDeleted"));
           await loadAiProviders();
         } catch (err) {
-          showToast(`Error removing provider: ${err.message}`, true);
+          showToast(`${t("toastErrorDeletingProvider")} ${err.message}`, true);
         }
       });
 
       aiProvidersList.appendChild(card);
     });
   } catch (error) {
-    aiProvidersList.innerHTML = `<div class="empty-state">Error loading AI providers: ${escapeHtml(error.message)}</div>`;
+    aiProvidersList.innerHTML = `<div class="empty-state">${escapeHtml(t("toastErrorLoadingAiProviders"))} ${escapeHtml(error.message)}</div>`;
   }
 }
 
@@ -579,7 +579,7 @@ const threads = await client.agent.listThreads();
 
     agentThreadsList.innerHTML = "";
     if (!threads || threads.length === 0) {
-      agentThreadsList.innerHTML = `<div class="empty-state">No active agent sessions. Click "+ New Thread" to initiate an agent.</div>`;
+      agentThreadsList.innerHTML = `<div class="empty-state">${escapeHtml(t("noAgentThreads"))}</div>`;
       return;
     }
 
@@ -588,11 +588,11 @@ const threads = await client.agent.listThreads();
       card.className = "agent-thread-card";
       const lastMsg = thread.messages && thread.messages.length > 0
         ? thread.messages[thread.messages.length - 1].content
-        : "Thread initialized.";
+        : t("threadInitialized");
 
       card.innerHTML = `
         <div class="thread-header">
-          <span class="thread-title">${escapeHtml(thread.title || "Agent Task")}</span>
+          <span class="thread-title">${escapeHtml(thread.title || t("defaultAgentTaskTitle"))}</span>
           <span class="pill status-pill active">${escapeHtml(thread.status || "active")}</span>
         </div>
         <div class="thread-msg-box">
@@ -601,8 +601,8 @@ const threads = await client.agent.listThreads();
         <div class="thread-footer">
           <span>ID: <code>${escapeHtml(thread.id)}</code></span>
           <div style="display: flex; gap: 4px;">
-            <button class="btn btn-sm btn-ghost archive-thread-btn" data-id="${thread.id}">Archive</button>
-            <button class="btn btn-sm btn-ghost delete-thread-btn" data-id="${thread.id}" style="color: var(--color-status-err);">Delete</button>
+            <button class="btn btn-sm btn-ghost archive-thread-btn" data-id="${thread.id}">${escapeHtml(t("archiveBtn"))}</button>
+            <button class="btn btn-sm btn-ghost delete-thread-btn" data-id="${thread.id}" style="color: var(--color-status-err);">${escapeHtml(t("deleteBtn"))}</button>
           </div>
         </div>
       `;
@@ -612,7 +612,7 @@ const threads = await client.agent.listThreads();
           await client.agent.archiveThread(thread.id);
           recordCode(`// Archive agent thread
 await client.agent.archiveThread("${thread.id}");`);
-          showToast("Thread archived.");
+          showToast(t("toastThreadArchived"));
           await loadAiStudio();
         } catch (e) {
           showToast(e.message, true);
@@ -624,7 +624,7 @@ await client.agent.archiveThread("${thread.id}");`);
           await client.agent.deleteThread(thread.id);
           recordCode(`// Delete agent thread
 await client.agent.deleteThread("${thread.id}");`);
-          showToast("Thread deleted.");
+          showToast(t("toastThreadDeleted"));
           await loadAiStudio();
         } catch (e) {
           showToast(e.message, true);
@@ -634,14 +634,14 @@ await client.agent.deleteThread("${thread.id}");`);
       agentThreadsList.appendChild(card);
     });
   } catch (err) {
-    agentThreadsList.innerHTML = `<div class="empty-state">Error loading threads: ${escapeHtml(err.message)}</div>`;
+    agentThreadsList.innerHTML = `<div class="empty-state">${escapeHtml(t("toastErrorLoadingThreads"))} ${escapeHtml(err.message)}</div>`;
   }
 }
 
 async function handleAnalyzeResume() {
   const resumeId = aiTargetResumeSelect ? aiTargetResumeSelect.value : "res-001";
   if (!resumeId) {
-    showToast("Please create or select a resume first.", true);
+    showToast(t("toastSelectResumeFirst"), true);
     return;
   }
 
@@ -663,17 +663,17 @@ Tone: ${analysis.tone || "Technical"}
     if (aiAnalysisResults) {
       aiAnalysisResults.innerHTML = `
         <div class="ai-metric-pills">
-          <span class="ai-metric-pill success">Score: ${analysis.score || 94}/100</span>
-          <span class="ai-metric-pill">ATS Match: ${analysis.atsMatch || "95%"}</span>
-          <span class="ai-metric-pill">Tone: ${analysis.tone || "Technical"}</span>
+          <span class="ai-metric-pill success">${escapeHtml(t("scoreLabel"))}: ${analysis.score || 94}/100</span>
+          <span class="ai-metric-pill">${escapeHtml(t("atsMatchLabel"))}: ${analysis.atsMatch || "95%"}</span>
+          <span class="ai-metric-pill">${escapeHtml(t("toneLabel"))}: ${analysis.tone || "Technical"}</span>
         </div>
-        <p style="margin-bottom: 8px;"><strong>Summary:</strong> ${escapeHtml(analysis.summary || "Strong quantifiable impact throughout.")}</p>
+        <p style="margin-bottom: 8px;"><strong>${escapeHtml(t("summaryLabel"))}</strong> ${escapeHtml(analysis.summary || "Strong quantifiable impact throughout.")}</p>
         <div style="font-size: 0.78rem;">
-          <strong>Strengths:</strong>
+          <strong>${escapeHtml(t("strengthsLabel"))}</strong>
           <ul style="margin: 4px 0 8px 16px;">
             ${(analysis.strengths || ["High quantifiable metrics", "Modern cloud-native stack"]).map(s => `<li>${escapeHtml(s)}</li>`).join("")}
           </ul>
-          <strong>Recommendations:</strong>
+          <strong>${escapeHtml(t("recommendationsLabel"))}</strong>
           <ul style="margin: 4px 0 0 16px;">
             ${(analysis.recommendations || ["Highlight cross-functional architectural leadership"]).map(r => `<li>${escapeHtml(r)}</li>`).join("")}
           </ul>
@@ -681,7 +681,7 @@ Tone: ${analysis.tone || "Technical"}
       `;
     }
   } catch (err) {
-    showToast(`Analysis failed: ${err.message}`, true);
+    showToast(`${t("toastAnalysisFailed")} ${err.message}`, true);
   } finally {
     if (runAiAnalyzeBtn) {
       runAiAnalyzeBtn.disabled = false;
@@ -697,7 +697,7 @@ async function handleAiChat() {
 
   const userMsgEl = document.createElement("div");
   userMsgEl.className = "chat-msg user";
-  userMsgEl.innerHTML = `<span class="chat-role">You</span> <span>${escapeHtml(prompt)}</span>`;
+  userMsgEl.innerHTML = `<span class="chat-role">${escapeHtml(t("chatRoleUser"))}</span> <span>${escapeHtml(prompt)}</span>`;
   aiChatHistory.appendChild(userMsgEl);
   aiChatInput.value = "";
   aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
@@ -711,12 +711,12 @@ const response = await client.ai.chat({
 
     const assistantMsgEl = document.createElement("div");
     assistantMsgEl.className = "chat-msg assistant";
-    const content = reply && reply.content ? reply.content : (reply && reply.response ? reply.response : "Suggestions generated.");
-    assistantMsgEl.innerHTML = `<span class="chat-role">AI</span> <span style="white-space: pre-wrap;">${escapeHtml(content)}</span>`;
+    const content = reply && reply.content ? reply.content : (reply && reply.response ? reply.response : t("suggestionsGenerated"));
+    assistantMsgEl.innerHTML = `<span class="chat-role">${escapeHtml(t("chatRoleAssistant"))}</span> <span style="white-space: pre-wrap;">${escapeHtml(content)}</span>`;
     aiChatHistory.appendChild(assistantMsgEl);
     aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
   } catch (err) {
-    showToast(`AI Chat error: ${err.message}`, true);
+    showToast(`${t("toastAiChatError")} ${err.message}`, true);
   }
 }
 
@@ -734,7 +734,7 @@ const thread = await client.agent.createThread({
     showToast(t("toastThreadCreated"));
     await loadAiStudio();
   } catch (err) {
-    showToast(`Failed to create thread: ${err.message}`, true);
+    showToast(`${t("toastFailedCreateThread")} ${err.message}`, true);
   }
 }
 
@@ -759,16 +759,16 @@ const providers = await client.auth.listProviders();
 
 async function handleExportAccount() {
   if (!authExportBlock) return;
-  authExportBlock.textContent = "Exporting user account...";
+  authExportBlock.textContent = t("authExportingText");
   try {
     const data = await client.auth.exportAccount();
     recordCode(`// Export user account data
 const accountData = await client.auth.exportAccount();`);
     authExportBlock.textContent = JSON.stringify(data, null, 2);
-    showToast("Account data exported successfully!");
+    showToast(t("toastAccountExported"));
   } catch (err) {
-    authExportBlock.textContent = `Error: ${err.message}`;
-    showToast(`Export failed: ${err.message}`, true);
+    authExportBlock.textContent = `${t("toastExportFailed")} ${err.message}`;
+    showToast(`${t("toastExportFailed")} ${err.message}`, true);
   }
 }
 
@@ -894,6 +894,8 @@ function setupEvents() {
     }
     loadResumes();
     loadApplications();
+    loadAiProviders();
+    loadAiStudio();
   }
 
   document.querySelectorAll('input[name="langSelect"]').forEach((radio) => {
@@ -1019,7 +1021,7 @@ const app = await client.applications.create(${JSON.stringify(payload, null, 2)}
       const baseURL = document.getElementById("newProviderBaseUrl").value.trim();
 
       if (!label || !model) {
-        showToast("Provider label and model identifier are required.", true);
+        showToast(t("toastProviderRequired"), true);
         return;
       }
 
@@ -1038,7 +1040,7 @@ const app = await client.applications.create(${JSON.stringify(payload, null, 2)}
         document.getElementById("newProviderBaseUrl").value = "";
         await loadAiProviders();
       } catch (err) {
-        showToast(`Error creating AI provider: ${err.message}`, true);
+        showToast(`${t("toastErrorCreatingProvider")} ${err.message}`, true);
       }
     });
   }

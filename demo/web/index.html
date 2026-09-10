@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reactive Resume SDK — Interactive Workbench</title>
+  <title data-i18n="docTitle">Reactive Resume SDK — Interactive Workbench</title>
   
   <!-- Hallmark Typography: Space Grotesk (display), Inter (body), JetBrains Mono (code/mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -32,7 +32,7 @@
           <span id="modeText" data-i18n="sandboxBadge">Sandbox Mode (Mock Data)</span>
         </div>
 
-        <button id="openSettingsModalBtn" class="btn btn-sm btn-ghost" title="Workbench Settings (⌘,)" aria-label="Open Workbench Settings" data-i18n="settingsBtn">
+        <button id="openSettingsModalBtn" class="btn btn-sm btn-ghost" title="Workbench Settings (⌘,)" aria-label="Open Workbench Settings" data-i18n="settingsBtn" data-i18n-title="settingsBtnTooltip">
           Settings
         </button>
 
@@ -66,7 +66,7 @@
         <div class="form-group flex-1">
           <div class="label-row">
             <label for="baseUrlInput" class="field-label" data-i18n="baseUrlLabel">API Base URL</label>
-            <a href="https://rxresu.me" target="_blank" rel="noopener noreferrer" class="helper-link" id="openInstanceLink" title="Open API Base URL in new tab" data-i18n="openInstanceLink">Open &nearr;</a>
+            <a href="https://rxresu.me" target="_blank" rel="noopener noreferrer" class="helper-link" id="openInstanceLink" title="Open API Base URL in new tab" data-i18n="openInstanceLink" data-i18n-title="openInstanceLinkTooltip">Open &nearr;</a>
           </div>
           <input type="text" id="baseUrlInput" class="input input-mono" value="https://rxresu.me" placeholder="https://rxresu.me or custom instance" data-i18n-placeholder="baseUrlPlaceholder" spellcheck="false" />
         </div>
@@ -74,7 +74,7 @@
         <div class="form-group flex-1">
           <div class="label-row">
             <label for="apiKeyInput" class="field-label"><span data-i18n="apiKeyLabel">API Key / Bearer Token</span> <span class="field-hint" data-i18n="apiKeyHint">(optional in sandbox)</span></label>
-            <a href="https://rxresu.me/dashboard/settings/api-keys" target="_blank" rel="noopener noreferrer" class="helper-link" id="getKeyLink" title="Open Reactive Resume API Keys Settings" data-i18n="getKeyLink">Get API Key &nearr;</a>
+            <a href="https://rxresu.me/dashboard/settings/api-keys" target="_blank" rel="noopener noreferrer" class="helper-link" id="getKeyLink" title="Open Reactive Resume API Keys Settings" data-i18n="getKeyLink" data-i18n-title="getKeyLinkTooltip">Get API Key &nearr;</a>
           </div>
           <input type="password" id="apiKeyInput" class="input input-mono" placeholder="Enter x-api-key or Bearer token" data-i18n-placeholder="apiKeyPlaceholder" autocomplete="off" />
         </div>
@@ -204,7 +204,7 @@
         <!-- Left: Resume AI Analysis & Chat -->
         <div class="ai-studio-panel">
           <div class="panel-header">
-            <h3 class="panel-title">AI Resume Analyzer (client.ai)</h3>
+            <h3 class="panel-title" data-i18n="aiAnalyzerTitle">AI Resume Analyzer (client.ai)</h3>
           </div>
           <div class="ai-controls-row">
             <div class="form-group flex-1">
@@ -217,19 +217,19 @@
           </div>
 
           <div id="aiAnalysisResults" class="ai-analysis-box">
-            <div class="empty-state">Select a resume and click "Analyze Resume" to trigger <code>client.ai.analyzeResume()</code></div>
+            <div class="empty-state"><span data-i18n="aiAnalyzePrompt">Select a resume and click "Analyze Resume" to trigger</span> <code>client.ai.analyzeResume()</code></div>
           </div>
 
           <div class="ai-chat-section">
-            <h4 class="ai-chat-heading">Interactive Resume AI Assistant (client.ai.chat)</h4>
+            <h4 class="ai-chat-heading" data-i18n="aiChatHeading">Interactive Resume AI Assistant (client.ai.chat)</h4>
             <div id="aiChatHistory" class="ai-chat-history">
               <div class="chat-msg assistant">
-                <span class="chat-role">AI</span>
-                <span>Hello! Ask me to rephrase, highlight quantifiable impact, or tune tone for any section of your resume.</span>
+                <span class="chat-role" data-i18n="chatRoleAssistant">AI</span>
+                <span data-i18n="aiChatWelcome">Hello! Ask me to rephrase, highlight quantifiable impact, or tune tone for any section of your resume.</span>
               </div>
             </div>
             <div class="chat-input-row">
-              <input type="text" id="aiChatInput" class="input flex-1" placeholder="e.g. Optimize technical stack for Staff Engineer roles..." />
+              <input type="text" id="aiChatInput" class="input flex-1" placeholder="e.g. Optimize technical stack for Staff Engineer roles..." data-i18n-placeholder="aiChatPlaceholder" />
               <button id="sendAiChatBtn" class="btn btn-secondary" data-i18n="aiChatBtn">Ask AI</button>
             </div>
           </div>
@@ -238,7 +238,7 @@
         <!-- Right: Autonomous Agent Threads -->
         <div class="ai-studio-panel">
           <div class="panel-header">
-            <h3 class="panel-title">Autonomous Agent Sessions (client.agent)</h3>
+            <h3 class="panel-title" data-i18n="agentSessionsTitle">Autonomous Agent Sessions (client.agent)</h3>
             <button id="newAgentThreadBtn" class="btn btn-sm btn-primary" data-i18n="newThreadBtn">+ New Thread</button>
           </div>
 
@@ -278,7 +278,7 @@
         <div class="code-header">
           <span class="code-title" data-i18n="flagsBlockTitle">Server Feature Flags (client.flags.list())</span>
         </div>
-        <pre id="flagsJsonBlock" class="code-block">Loading feature flags...</pre>
+        <pre id="flagsJsonBlock" class="code-block" data-i18n="flagsLoading">Loading feature flags...</pre>
       </div>
 
       <div class="code-inspector" style="margin-top: var(--space-md);">
@@ -287,10 +287,10 @@
           <button id="exportAccountBtn" class="btn btn-sm btn-ghost" data-i18n="exportAccountBtn">Export Account Data</button>
         </div>
         <div style="padding: var(--space-sm) var(--space-md); border-bottom: 1px solid var(--color-graphite-rule); display: flex; align-items: center; gap: var(--space-sm); font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-graphite-muted);">
-          <span>Active Auth Providers:</span>
-          <span id="authProvidersChips" style="display: flex; gap: 6px;">Loading...</span>
+          <span data-i18n="activeAuthProvidersLabel">Active Auth Providers:</span>
+          <span id="authProvidersChips" style="display: flex; gap: 6px;" data-i18n="authProvidersLoading">Loading...</span>
         </div>
-        <pre id="authExportBlock" class="code-block">// Click "Export Account Data" above to test client.auth.exportAccount()</pre>
+        <pre id="authExportBlock" class="code-block" data-i18n="authExportPrompt">// Click "Export Account Data" above to test client.auth.exportAccount()</pre>
       </div>
     </section>
 
@@ -329,7 +329,7 @@ const resumes = await client.resumes.list();</pre>
     <div class="modal-card">
       <div class="modal-header">
         <h3 id="createResumeTitle" class="modal-title" data-i18n="createResumeModalTitle">Create / Import Resume</h3>
-        <button class="btn-icon closeModalBtn" aria-label="Close dialog">✕</button>
+        <button class="btn-icon closeModalBtn" aria-label="Close dialog" data-i18n-aria-label="closeDialogAria">✕</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -357,7 +357,7 @@ const resumes = await client.resumes.list();</pre>
     <div class="modal-card">
       <div class="modal-header">
         <h3 id="createAppTitle" class="modal-title" data-i18n="createAppModalTitle">Log Job Application</h3>
-        <button class="btn-icon closeModalBtn" aria-label="Close dialog">✕</button>
+        <button class="btn-icon closeModalBtn" aria-label="Close dialog" data-i18n-aria-label="closeDialogAria">✕</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -393,30 +393,30 @@ const resumes = await client.resumes.list();</pre>
   <div id="createAiProviderModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="createAiProviderTitle">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 id="createAiProviderTitle" class="modal-title" data-i18n="createAiProviderBtn">+ Add AI Provider</h3>
-        <button class="btn-icon closeModalBtn" aria-label="Close dialog">✕</button>
+        <h3 id="createAiProviderTitle" class="modal-title" data-i18n="createAiProviderModalTitle">+ Add AI Provider</h3>
+        <button class="btn-icon closeModalBtn" aria-label="Close dialog" data-i18n-aria-label="closeDialogAria">✕</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label for="newProviderLabel" class="field-label">Provider Label</label>
-          <input type="text" id="newProviderLabel" class="input" placeholder="e.g. Production OpenAI or Local Ollama" />
+          <label for="newProviderLabel" class="field-label" data-i18n="labelProviderLabel">Provider Label</label>
+          <input type="text" id="newProviderLabel" class="input" placeholder="e.g. Production OpenAI or Local Ollama" data-i18n-placeholder="placeholderProviderLabel" />
         </div>
         <div class="form-group">
-          <label for="newProviderModel" class="field-label">Model Identifier</label>
-          <input type="text" id="newProviderModel" class="input input-mono" placeholder="e.g. gpt-4o, claude-3-5-sonnet, llama3:8b" />
+          <label for="newProviderModel" class="field-label" data-i18n="labelProviderModel">Model Identifier</label>
+          <input type="text" id="newProviderModel" class="input input-mono" placeholder="e.g. gpt-4o, claude-3-5-sonnet, llama3:8b" data-i18n-placeholder="placeholderProviderModel" />
         </div>
         <div class="form-group">
-          <label for="newProviderApiKey" class="field-label">API Key</label>
-          <input type="password" id="newProviderApiKey" class="input input-mono" placeholder="Enter provider API key (optional for local Ollama)" autocomplete="off" />
+          <label for="newProviderApiKey" class="field-label" data-i18n="labelProviderApiKey">API Key</label>
+          <input type="password" id="newProviderApiKey" class="input input-mono" placeholder="Enter provider API key (optional for local Ollama)" data-i18n-placeholder="placeholderProviderApiKey" autocomplete="off" />
         </div>
         <div class="form-group">
-          <label for="newProviderBaseUrl" class="field-label">Base URL (optional)</label>
-          <input type="text" id="newProviderBaseUrl" class="input input-mono" placeholder="https://api.openai.com/v1 or http://localhost:11434/v1" />
+          <label for="newProviderBaseUrl" class="field-label" data-i18n="labelProviderBaseUrl">Base URL (optional)</label>
+          <input type="text" id="newProviderBaseUrl" class="input input-mono" placeholder="https://api.openai.com/v1 or http://localhost:11434/v1" data-i18n-placeholder="placeholderProviderBaseUrl" />
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary closeModalBtn" data-i18n="cancelBtn">Cancel</button>
-        <button id="submitCreateAiProviderBtn" class="btn btn-primary">Save Provider</button>
+        <button id="submitCreateAiProviderBtn" class="btn btn-primary" data-i18n="saveProviderBtn">Save Provider</button>
       </div>
     </div>
   </div>
@@ -426,10 +426,10 @@ const resumes = await client.resumes.list();</pre>
     <div class="modal-card modal-large">
       <div class="modal-header">
         <h3 id="pdfModalTitle" class="modal-title" data-i18n="pdfModalTitle">Compiled Resume PDF</h3>
-        <button class="btn-icon closeModalBtn" aria-label="Close dialog">✕</button>
+        <button class="btn-icon closeModalBtn" aria-label="Close dialog" data-i18n-aria-label="closeDialogAria">✕</button>
       </div>
       <div class="modal-body modal-preview-body">
-        <iframe id="pdfFrame" class="pdf-frame" title="PDF Preview Frame"></iframe>
+        <iframe id="pdfFrame" class="pdf-frame" title="PDF Preview Frame" data-i18n-title="pdfPreviewFrameTitle"></iframe>
       </div>
       <div class="modal-footer">
         <a id="pdfDownloadLink" class="btn btn-primary" download="resume.pdf" data-i18n="downloadPdf">Download PDF</a>
@@ -443,7 +443,7 @@ const resumes = await client.resumes.list();</pre>
     <div class="modal-card">
       <div class="modal-header">
         <h3 id="settingsModalTitle" class="modal-title" data-i18n="settingsModalTitle">Workbench Settings</h3>
-        <button class="btn-icon closeModalBtn" aria-label="Close dialog">✕</button>
+        <button class="btn-icon closeModalBtn" aria-label="Close dialog" data-i18n-aria-label="closeDialogAria">✕</button>
       </div>
       <div class="modal-body">
         <div class="setting-group">
