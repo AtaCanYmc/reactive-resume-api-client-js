@@ -570,6 +570,12 @@ export function applyLanguage(lang) {
       el.title = val;
     }
   });
+
+  // Ensure radio button is synced
+  const radio = document.querySelector(`input[name="langSelect"][value="${currentLang}"]`);
+  if (radio) {
+    radio.checked = true;
+  }
 }
 
 export function initLanguage() {

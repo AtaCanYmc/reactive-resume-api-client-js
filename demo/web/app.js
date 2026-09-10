@@ -497,27 +497,54 @@ function setupEvents() {
     });
   }
 
-  // Theme selection listener
+  // Theme selection handler
+  function handleThemeChange(theme) {
+    applyTheme(theme);
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+    const radio = document.querySelector(`input[name="themeSelect"][value="${theme}"]`);
+    if (radio) radio.checked = true;
+  }
+
   document.querySelectorAll('input[name="themeSelect"]').forEach((radio) => {
-    radio.addEventListener("change", (e) => {
-      const theme = e.target.value;
-      applyTheme(theme);
-      localStorage.setItem(THEME_STORAGE_KEY, theme);
-    });
+    radio.addEventListener("change", (e) => handleThemeChange(e.target.value));
+    radio.addEventListener("input", (e) => handleThemeChange(e.target.value));
   });
 
-  // Language selection listener
+  // Language selection handler
+  function handleLangChange(lang) {
+    applyLanguage(lang);
+    const radio = document.querySelector(`input[name="langSelect"][value="${lang}"]`);
+    if (radio) radio.checked = true;
+
+    if (sandboxToggle.checked) {
+      modeText.textContent = t("sandboxBadge");
+    } else {
+      modeText.textContent = t("liveBadge");
+    }
+    if (testConnectionBtn && !testConnectionBtn.disabled) {
+      testConnectionBtn.textContent = t("testConnectionBtn");
+    }
+    loadResumes();
+    loadApplications();
+  }
+
   document.querySelectorAll('input[name="langSelect"]').forEach((radio) => {
-    radio.addEventListener("change", (e) => {
-      const lang = e.target.value;
-      applyLanguage(lang);
-      if (sandboxToggle.checked) {
-        modeText.textContent = t("sandboxBadge");
-      } else {
-        modeText.textContent = t("liveBadge");
+    radio.addEventListener("change", (e) => handleLangChange(e.target.value));
+    radio.addEventListener("input", (e) => handleLangChange(e.target.value));
+  });
+
+  // Direct option card click handler
+  document.querySelectorAll('.theme-options .theme-option, .lang-options .theme-option').forEach((card) => {
+    card.addEventListener("click", (e) => {
+      const radio = card.querySelector('input[type="radio"]');
+      if (radio) {
+        radio.checked = true;
+        if (radio.name === "langSelect") {
+          handleLangChange(radio.value);
+        } else if (radio.name === "themeSelect") {
+          handleThemeChange(radio.value);
+        }
       }
-      loadResumes();
-      loadApplications();
     });
   });
 
