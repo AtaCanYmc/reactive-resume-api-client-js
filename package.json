@@ -51,10 +51,9 @@
     "preview:demo": "npm run build:demo && node demo/web/server.js",
     "prepublishOnly": "npm run build && npm test"
   },
-  "dependencies": {},
   "devDependencies": {
     "tsup": "^8.4.0",
-    "typescript": "^5.8.2",
-    "vitest": "^3.0.7"
+    "typescript": "~5.9.3",
+    "vitest": "^5.0.0"
   }
 }
