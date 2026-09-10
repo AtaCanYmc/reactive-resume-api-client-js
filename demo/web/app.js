@@ -63,6 +63,29 @@ const pdfModalTitle = document.getElementById("pdfModalTitle");
 const settingsModal = document.getElementById("settingsModal");
 const openSettingsModalBtn = document.getElementById("openSettingsModalBtn");
 
+// AI Providers DOM Elements
+const aiProvidersTabCount = document.getElementById("aiProvidersTabCount");
+const aiProvidersList = document.getElementById("aiProvidersList");
+const refreshAiProvidersBtn = document.getElementById("refreshAiProvidersBtn");
+const openCreateAiProviderModalBtn = document.getElementById("openCreateAiProviderModalBtn");
+const createAiProviderModal = document.getElementById("createAiProviderModal");
+const submitCreateAiProviderBtn = document.getElementById("submitCreateAiProviderBtn");
+
+// AI & Agent Studio DOM Elements
+const aiTargetResumeSelect = document.getElementById("aiTargetResumeSelect");
+const runAiAnalyzeBtn = document.getElementById("runAiAnalyzeBtn");
+const aiAnalysisResults = document.getElementById("aiAnalysisResults");
+const aiChatInput = document.getElementById("aiChatInput");
+const sendAiChatBtn = document.getElementById("sendAiChatBtn");
+const aiChatHistory = document.getElementById("aiChatHistory");
+const newAgentThreadBtn = document.getElementById("newAgentThreadBtn");
+const agentThreadsList = document.getElementById("agentThreadsList");
+
+// Auth DOM Elements
+const authProvidersChips = document.getElementById("authProvidersChips");
+const exportAccountBtn = document.getElementById("exportAccountBtn");
+const authExportBlock = document.getElementById("authExportBlock");
+
 // Storage Keys
 const THEME_STORAGE_KEY = "rx_theme_pref";
 const API_KEY_STORAGE_KEY = "rx_api_key";
@@ -406,6 +429,306 @@ const [users, stars, resumes, flags] = await Promise.all([
   }
 }
 
+// ==========================================
+// 1. AI Providers Management (client.aiProviders)
+// ==========================================
+async function loadAiProviders() {
+  if (!aiProvidersList) return;
+  try {
+    const providers = await client.aiProviders.list();
+    if (aiProvidersTabCount) {
+      aiProvidersTabCount.textContent = Array.isArray(providers) ? providers.length : 0;
+    }
+
+    recordCode(`// List configured AI inference providers
+const providers = await client.aiProviders.list();
+// Retrieved ${Array.isArray(providers) ? providers.length : 0} AI providers`);
+
+    aiProvidersList.innerHTML = "";
+
+    if (!providers || providers.length === 0) {
+      aiProvidersList.innerHTML = `<div class="empty-state">${t("noAiProviders")}</div>`;
+      return;
+    }
+
+    providers.forEach((provider) => {
+      const card = document.createElement("div");
+      card.className = "resume-card";
+      card.innerHTML = `
+        <div class="resume-header">
+          <div>
+            <h3 class="resume-name">${escapeHtml(provider.label || "AI Provider")}</h3>
+            <p class="resume-slug">model: <code>${escapeHtml(provider.model || "default")}</code></p>
+          </div>
+          <div class="resume-meta">
+            <span class="pill status-pill ${provider.apiKey ? "active" : "locked"}">${provider.apiKey ? "Ready" : "No Key"}</span>
+          </div>
+        </div>
+
+        <div style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+          baseURL: ${escapeHtml(provider.baseURL || "https://api.openai.com/v1")}
+        </div>
+
+        <div class="resume-actions">
+          <button class="btn btn-sm btn-secondary test-provider-btn" data-id="${provider.id}">${t("testProviderBtn")}</button>
+          <button class="btn btn-sm btn-danger delete-provider-btn" data-id="${provider.id}">${t("deleteBtn")}</button>
+        </div>
+      `;
+
+      card.querySelector(".test-provider-btn").addEventListener("click", async (e) => {
+        const btn = e.target;
+        btn.disabled = true;
+        btn.textContent = "...";
+        try {
+          await client.aiProviders.test(provider.id);
+          recordCode(`// Test connection for AI provider
+const result = await client.aiProviders.test("${provider.id}");`);
+          showToast(t("toastProviderTested"));
+          btn.textContent = "✓ OK";
+          setTimeout(() => { btn.textContent = t("testProviderBtn"); btn.disabled = false; }, 3000);
+        } catch (err) {
+          showToast(`Test failed: ${err.message}`, true);
+          btn.textContent = "✕ Error";
+          setTimeout(() => { btn.textContent = t("testProviderBtn"); btn.disabled = false; }, 3000);
+        }
+      });
+
+      card.querySelector(".delete-provider-btn").addEventListener("click", async () => {
+        try {
+          await client.aiProviders.delete(provider.id);
+          recordCode(`// Delete AI provider configuration
+await client.aiProviders.delete("${provider.id}");`);
+          showToast(t("toastProviderDeleted"));
+          await loadAiProviders();
+        } catch (err) {
+          showToast(`Error removing provider: ${err.message}`, true);
+        }
+      });
+
+      aiProvidersList.appendChild(card);
+    });
+  } catch (error) {
+    aiProvidersList.innerHTML = `<div class="empty-state">Error loading AI providers: ${escapeHtml(error.message)}</div>`;
+  }
+}
+
+// ==========================================
+// 2. AI & Agent Studio (client.ai & client.agent)
+// ==========================================
+async function loadAiStudio() {
+  // Populate target resume dropdown
+  try {
+    const resumes = await client.resumes.list();
+    if (aiTargetResumeSelect) {
+      aiTargetResumeSelect.innerHTML = resumes.map(r => `
+        <option value="${r.id}">${escapeHtml(r.name || r.slug || r.id)}</option>
+      `).join("");
+    }
+  } catch (_) {}
+
+  // Load Agent threads
+  if (!agentThreadsList) return;
+  try {
+    const threads = await client.agent.listThreads();
+    recordCode(`// List autonomous agent threads
+const threads = await client.agent.listThreads();
+// Retrieved ${threads.length} active agent sessions`);
+
+    agentThreadsList.innerHTML = "";
+    if (!threads || threads.length === 0) {
+      agentThreadsList.innerHTML = `<div class="empty-state">No active agent sessions. Click "+ New Thread" to initiate an agent.</div>`;
+      return;
+    }
+
+    threads.forEach(thread => {
+      const card = document.createElement("div");
+      card.className = "agent-thread-card";
+      const lastMsg = thread.messages && thread.messages.length > 0
+        ? thread.messages[thread.messages.length - 1].content
+        : "Thread initialized.";
+
+      card.innerHTML = `
+        <div class="thread-header">
+          <span class="thread-title">${escapeHtml(thread.title || "Agent Task")}</span>
+          <span class="pill status-pill active">${escapeHtml(thread.status || "active")}</span>
+        </div>
+        <div class="thread-msg-box">
+          ${escapeHtml(lastMsg)}
+        </div>
+        <div class="thread-footer">
+          <span>ID: <code>${escapeHtml(thread.id)}</code></span>
+          <div style="display: flex; gap: 4px;">
+            <button class="btn btn-sm btn-ghost archive-thread-btn" data-id="${thread.id}">Archive</button>
+            <button class="btn btn-sm btn-ghost delete-thread-btn" data-id="${thread.id}" style="color: var(--color-status-err);">Delete</button>
+          </div>
+        </div>
+      `;
+
+      card.querySelector(".archive-thread-btn").addEventListener("click", async () => {
+        try {
+          await client.agent.archiveThread(thread.id);
+          recordCode(`// Archive agent thread
+await client.agent.archiveThread("${thread.id}");`);
+          showToast("Thread archived.");
+          await loadAiStudio();
+        } catch (e) {
+          showToast(e.message, true);
+        }
+      });
+
+      card.querySelector(".delete-thread-btn").addEventListener("click", async () => {
+        try {
+          await client.agent.deleteThread(thread.id);
+          recordCode(`// Delete agent thread
+await client.agent.deleteThread("${thread.id}");`);
+          showToast("Thread deleted.");
+          await loadAiStudio();
+        } catch (e) {
+          showToast(e.message, true);
+        }
+      });
+
+      agentThreadsList.appendChild(card);
+    });
+  } catch (err) {
+    agentThreadsList.innerHTML = `<div class="empty-state">Error loading threads: ${escapeHtml(err.message)}</div>`;
+  }
+}
+
+async function handleAnalyzeResume() {
+  const resumeId = aiTargetResumeSelect ? aiTargetResumeSelect.value : "res-001";
+  if (!resumeId) {
+    showToast("Please create or select a resume first.", true);
+    return;
+  }
+
+  if (runAiAnalyzeBtn) {
+    runAiAnalyzeBtn.disabled = true;
+    runAiAnalyzeBtn.textContent = "...";
+  }
+
+  try {
+    const analysis = await client.ai.analyzeResume(resumeId, "aip-001");
+    recordCode(`// Analyze resume with configured AI provider
+const analysis = await client.ai.analyzeResume("${resumeId}", "aip-001");
+/*
+Score: ${analysis.score || 94}
+ATS Match: ${analysis.atsMatch || "95%"}
+Tone: ${analysis.tone || "Technical"}
+*/`);
+
+    if (aiAnalysisResults) {
+      aiAnalysisResults.innerHTML = `
+        <div class="ai-metric-pills">
+          <span class="ai-metric-pill success">Score: ${analysis.score || 94}/100</span>
+          <span class="ai-metric-pill">ATS Match: ${analysis.atsMatch || "95%"}</span>
+          <span class="ai-metric-pill">Tone: ${analysis.tone || "Technical"}</span>
+        </div>
+        <p style="margin-bottom: 8px;"><strong>Summary:</strong> ${escapeHtml(analysis.summary || "Strong quantifiable impact throughout.")}</p>
+        <div style="font-size: 0.78rem;">
+          <strong>Strengths:</strong>
+          <ul style="margin: 4px 0 8px 16px;">
+            ${(analysis.strengths || ["High quantifiable metrics", "Modern cloud-native stack"]).map(s => `<li>${escapeHtml(s)}</li>`).join("")}
+          </ul>
+          <strong>Recommendations:</strong>
+          <ul style="margin: 4px 0 0 16px;">
+            ${(analysis.recommendations || ["Highlight cross-functional architectural leadership"]).map(r => `<li>${escapeHtml(r)}</li>`).join("")}
+          </ul>
+        </div>
+      `;
+    }
+  } catch (err) {
+    showToast(`Analysis failed: ${err.message}`, true);
+  } finally {
+    if (runAiAnalyzeBtn) {
+      runAiAnalyzeBtn.disabled = false;
+      runAiAnalyzeBtn.textContent = t("aiAnalyzeBtn");
+    }
+  }
+}
+
+async function handleAiChat() {
+  if (!aiChatInput) return;
+  const prompt = aiChatInput.value.trim();
+  if (!prompt) return;
+
+  const userMsgEl = document.createElement("div");
+  userMsgEl.className = "chat-msg user";
+  userMsgEl.innerHTML = `<span class="chat-role">You</span> <span>${escapeHtml(prompt)}</span>`;
+  aiChatHistory.appendChild(userMsgEl);
+  aiChatInput.value = "";
+  aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
+
+  try {
+    const reply = await client.ai.chat({ prompt, resumeId: aiTargetResumeSelect ? aiTargetResumeSelect.value : undefined });
+    recordCode(`// Request resume modification suggestion via AI chat
+const response = await client.ai.chat({
+  prompt: "${prompt}",
+});`);
+
+    const assistantMsgEl = document.createElement("div");
+    assistantMsgEl.className = "chat-msg assistant";
+    const content = reply && reply.content ? reply.content : (reply && reply.response ? reply.response : "Suggestions generated.");
+    assistantMsgEl.innerHTML = `<span class="chat-role">AI</span> <span style="white-space: pre-wrap;">${escapeHtml(content)}</span>`;
+    aiChatHistory.appendChild(assistantMsgEl);
+    aiChatHistory.scrollTop = aiChatHistory.scrollHeight;
+  } catch (err) {
+    showToast(`AI Chat error: ${err.message}`, true);
+  }
+}
+
+async function handleCreateAgentThread() {
+  try {
+    const resumeId = aiTargetResumeSelect ? aiTargetResumeSelect.value : undefined;
+    await client.agent.createThread({
+      sourceResumeId: resumeId,
+      aiProviderId: "aip-001",
+    });
+    recordCode(`// Create new autonomous agent thread
+const thread = await client.agent.createThread({
+  sourceResumeId: "${resumeId || "res-001"}",
+});`);
+    showToast(t("toastThreadCreated"));
+    await loadAiStudio();
+  } catch (err) {
+    showToast(`Failed to create thread: ${err.message}`, true);
+  }
+}
+
+// ==========================================
+// 3. Authentication & Account (client.auth)
+// ==========================================
+async function loadAuthData() {
+  if (!authProvidersChips) return;
+  try {
+    const providers = await client.auth.listProviders();
+    recordCode(`// List active authentication providers
+const providers = await client.auth.listProviders();
+// ${JSON.stringify(providers)}`);
+
+    authProvidersChips.innerHTML = providers.map(p => `
+      <span class="pill status-pill active" style="text-transform: uppercase;">${escapeHtml(p)}</span>
+    `).join("");
+  } catch (_) {
+    authProvidersChips.innerHTML = `<span class="pill status-pill">email</span>`;
+  }
+}
+
+async function handleExportAccount() {
+  if (!authExportBlock) return;
+  authExportBlock.textContent = "Exporting user account...";
+  try {
+    const data = await client.auth.exportAccount();
+    recordCode(`// Export user account data
+const accountData = await client.auth.exportAccount();`);
+    authExportBlock.textContent = JSON.stringify(data, null, 2);
+    showToast("Account data exported successfully!");
+  } catch (err) {
+    authExportBlock.textContent = `Error: ${err.message}`;
+    showToast(`Export failed: ${err.message}`, true);
+  }
+}
+
 // Test API Connection
 async function handleTestConnection() {
   if (!testConnectionBtn) return;
@@ -527,14 +850,23 @@ function setupEvents() {
       // Trigger respective refresh
       if (btn.dataset.tab === "resumesTab") loadResumes();
       else if (btn.dataset.tab === "applicationsTab") loadApplications();
-      else if (btn.dataset.tab === "statsTab") loadStatistics();
+      else if (btn.dataset.tab === "aiProvidersTab") loadAiProviders();
+      else if (btn.dataset.tab === "aiTab") loadAiStudio();
+      else if (btn.dataset.tab === "statsTab") {
+        loadStatistics();
+        loadAuthData();
+      }
     });
   });
 
   // Refresh Buttons
   document.getElementById("refreshResumesBtn").addEventListener("click", loadResumes);
   document.getElementById("refreshAppsBtn").addEventListener("click", loadApplications);
-  document.getElementById("refreshStatsBtn").addEventListener("click", loadStatistics);
+  document.getElementById("refreshStatsBtn").addEventListener("click", () => {
+    loadStatistics();
+    loadAuthData();
+  });
+  if (refreshAiProvidersBtn) refreshAiProvidersBtn.addEventListener("click", loadAiProviders);
 
   // Modals Open/Close
   document.getElementById("openCreateResumeModalBtn").addEventListener("click", () => {
@@ -543,11 +875,29 @@ function setupEvents() {
   document.getElementById("openCreateAppModalBtn").addEventListener("click", () => {
     createAppModal.classList.add("open");
   });
+  if (openCreateAiProviderModalBtn && createAiProviderModal) {
+    openCreateAiProviderModalBtn.addEventListener("click", () => {
+      createAiProviderModal.classList.add("open");
+    });
+  }
   if (openSettingsModalBtn && settingsModal) {
     openSettingsModalBtn.addEventListener("click", () => {
       settingsModal.classList.add("open");
     });
   }
+
+  // AI & Agent Studio Events
+  if (runAiAnalyzeBtn) runAiAnalyzeBtn.addEventListener("click", handleAnalyzeResume);
+  if (sendAiChatBtn) sendAiChatBtn.addEventListener("click", handleAiChat);
+  if (aiChatInput) {
+    aiChatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") handleAiChat();
+    });
+  }
+  if (newAgentThreadBtn) newAgentThreadBtn.addEventListener("click", handleCreateAgentThread);
+
+  // Auth Events
+  if (exportAccountBtn) exportAccountBtn.addEventListener("click", handleExportAccount);
 
   // Theme selection handler
   function handleThemeChange(theme) {
@@ -694,6 +1044,39 @@ const app = await client.applications.create(${JSON.stringify(payload, null, 2)}
     }
   });
 
+  // Create AI Provider Submit
+  if (submitCreateAiProviderBtn) {
+    submitCreateAiProviderBtn.addEventListener("click", async () => {
+      const label = document.getElementById("newProviderLabel").value.trim();
+      const model = document.getElementById("newProviderModel").value.trim();
+      const apiKey = document.getElementById("newProviderApiKey").value.trim();
+      const baseURL = document.getElementById("newProviderBaseUrl").value.trim();
+
+      if (!label || !model) {
+        showToast("Provider label and model identifier are required.", true);
+        return;
+      }
+
+      try {
+        await client.aiProviders.create({
+          label,
+          model,
+          apiKey: apiKey || "dummy-key",
+          ...(baseURL ? { baseURL } : {}),
+        });
+        showToast(t("toastProviderAdded"));
+        createAiProviderModal.classList.remove("open");
+        document.getElementById("newProviderLabel").value = "";
+        document.getElementById("newProviderModel").value = "";
+        document.getElementById("newProviderApiKey").value = "";
+        document.getElementById("newProviderBaseUrl").value = "";
+        await loadAiProviders();
+      } catch (err) {
+        showToast(`Error creating AI provider: ${err.message}`, true);
+      }
+    });
+  }
+
   // Copy Code Snippet
   document.getElementById("copyCodeBtn").addEventListener("click", () => {
     navigator.clipboard.writeText(lastExecutedCode.textContent).then(() => {
@@ -720,4 +1103,6 @@ initClient();
 setupEvents();
 loadResumes();
 loadApplications();
+loadAiProviders();
 loadStatistics();
+loadAuthData();

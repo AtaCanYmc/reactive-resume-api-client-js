@@ -232,6 +232,70 @@ export const MOCK_FLAGS = {
   isPdfExportEnabled: true,
 };
 
+export const MOCK_AI_PROVIDERS = [
+  {
+    id: "aip-001",
+    userId: "user-dev-1",
+    label: "OpenAI Production",
+    model: "gpt-4o",
+    apiKey: "sk-proj-••••••••••••••••",
+    baseURL: "https://api.openai.com/v1",
+    createdAt: "2026-06-01T10:00:00Z",
+    updatedAt: "2026-09-01T12:00:00Z",
+  },
+  {
+    id: "aip-002",
+    userId: "user-dev-1",
+    label: "Anthropic Claude",
+    model: "claude-3-5-sonnet-20241022",
+    apiKey: "sk-ant-••••••••••••••••",
+    baseURL: "https://api.anthropic.com/v1",
+    createdAt: "2026-07-10T14:00:00Z",
+    updatedAt: "2026-08-15T09:30:00Z",
+  },
+  {
+    id: "aip-003",
+    userId: "user-dev-1",
+    label: "Local Ollama Llama 3",
+    model: "llama3:8b",
+    apiKey: "ollama-local",
+    baseURL: "http://localhost:11434/v1",
+    createdAt: "2026-08-01T18:20:00Z",
+    updatedAt: "2026-09-05T16:45:00Z",
+  },
+];
+
+export const MOCK_AGENT_THREADS = [
+  {
+    id: "th-001",
+    userId: "user-dev-1",
+    title: "Staff Backend Role Alignment",
+    sourceResumeId: "res-001",
+    status: "active",
+    createdAt: "2026-09-08T10:00:00Z",
+    updatedAt: "2026-09-08T10:15:00Z",
+    messages: [
+      { id: "msg-1", role: "user", content: "Optimize technical stack bullet points for Staff Engineer positions." },
+      { id: "msg-2", role: "assistant", content: "Analysis complete. Suggested highlighting p99 latency improvements, distributed tracing, and RFC authoring." },
+    ],
+  },
+  {
+    id: "th-002",
+    userId: "user-dev-1",
+    title: "Cloud Architect ATS Audit",
+    sourceResumeId: "res-001",
+    status: "active",
+    createdAt: "2026-09-06T16:00:00Z",
+    updatedAt: "2026-09-06T16:20:00Z",
+    messages: [
+      { id: "msg-3", role: "user", content: "Verify keyword match for PostgreSQL internals and cloud orchestration." },
+      { id: "msg-4", role: "assistant", content: "Found 94% match. Added Raft consensus, WAL replication, and multi-region failover recommendations." },
+    ],
+  },
+];
+
+export const MOCK_AUTH_PROVIDERS = ["email", "github", "google", "oidc"];
+
 /**
  * Creates a minimal valid PDF byte sequence representing a sample resume document.
  */
@@ -287,6 +351,8 @@ startxref
 export function createMockFetch() {
   const resumes = JSON.parse(JSON.stringify(MOCK_RESUMES));
   const applications = JSON.parse(JSON.stringify(MOCK_APPLICATIONS));
+  const aiProviders = JSON.parse(JSON.stringify(MOCK_AI_PROVIDERS));
+  const agentThreads = JSON.parse(JSON.stringify(MOCK_AGENT_THREADS));
 
   return async function mockFetch(urlStr, init = {}) {
     const url = new URL(urlStr);
@@ -453,6 +519,187 @@ export function createMockFetch() {
     }
     if (path === "/api/openapi/flags") {
       return new Response(JSON.stringify(MOCK_FLAGS), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // 4. AI Providers
+    if (path === "/api/openapi/ai-providers" && method === "GET") {
+      return new Response(JSON.stringify(aiProviders), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (path === "/api/openapi/ai-providers" && method === "POST") {
+      const body = JSON.parse(init.body || "{}");
+      const newProvider = {
+        id: `aip-${Date.now().toString().slice(-4)}`,
+        userId: "user-dev-1",
+        label: body.label || "Custom LLM Provider",
+        model: body.model || "gpt-4o-mini",
+        apiKey: body.apiKey ? "••••••••" : "",
+        baseURL: body.baseURL || "https://api.openai.com/v1",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      aiProviders.unshift(newProvider);
+      return new Response(JSON.stringify(newProvider), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (path.startsWith("/api/openapi/ai-providers/") && path.endsWith("/test") && method === "POST") {
+      return new Response(JSON.stringify({ success: true, latencyMs: Math.floor(Math.random() * 60 + 50) }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (path.startsWith("/api/openapi/ai-providers/") && method === "DELETE") {
+      const pId = path.split("/")[4];
+      const idx = aiProviders.findIndex((p) => p.id === pId);
+      if (idx !== -1) aiProviders.splice(idx, 1);
+      return new Response(null, { status: 204 });
+    }
+
+    // 5. AI Resume Analysis & Chat
+    if (path === "/api/openapi/ai/analyze-resume" && method === "POST") {
+      const body = JSON.parse(init.body || "{}");
+      const target = resumes.find((r) => r.id === body.resumeId) || resumes[0];
+      const analysis = {
+        resumeId: target ? target.id : "res-001",
+        resumeName: target ? target.name : "Resume",
+        score: 94,
+        atsMatch: "Strong (95%)",
+        tone: "Senior Engineering / Systems Architecture",
+        summary: "Exceptionally clear technical experience. High quantifiable impact and strong keyword alignment for Tier-1 infrastructure positions.",
+        strengths: [
+          "Quantifiable business metrics (50k+ req/sec, 70% deployment speedup)",
+          "High keyword density for TypeScript, Node.js, and Distributed Systems",
+          "Clean single-column structural hierarchy for maximum ATS parser compliance",
+        ],
+        recommendations: [
+          "Include latency SLA percentiles (p99/p99.9) in the distributed systems project",
+          "Add mention of RFC design docs and cross-functional technical mentorship",
+        ],
+      };
+      return new Response(JSON.stringify(analysis), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (path === "/api/openapi/ai/chat" && method === "POST") {
+      const body = JSON.parse(init.body || "{}");
+      const prompt = body.prompt || body.message || "Improve summary";
+      const reply = {
+        role: "assistant",
+        content: `Optimized revision based on "${prompt}":\n\n"Architected high-throughput distributed microservices handling 50k+ requests/sec across AWS and Kubernetes. Reduced p99 latency by 35% and authored core developer SDKs adopted by 12+ engineering teams."`,
+      };
+      return new Response(JSON.stringify(reply), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // 6. Autonomous Agent Threads
+    if (path === "/api/openapi/agent/threads" && method === "GET") {
+      return new Response(JSON.stringify(agentThreads), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (path === "/api/openapi/agent/threads" && method === "POST") {
+      const body = JSON.parse(init.body || "{}");
+      const newThread = {
+        id: `th-${Date.now().toString().slice(-4)}`,
+        userId: "user-dev-1",
+        title: body.title || "Resume Keyword Optimization",
+        sourceResumeId: body.sourceResumeId || (resumes[0] ? resumes[0].id : "res-001"),
+        status: "active",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        messages: [
+          {
+            id: `msg-${Date.now()}`,
+            role: "assistant",
+            content: "Agent session initialized. Ready to autonomously audit, format, and align resume sections.",
+          },
+        ],
+      };
+      agentThreads.unshift(newThread);
+      return new Response(JSON.stringify(newThread), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (path === "/api/openapi/agent/messages/send" && method === "POST") {
+      const body = JSON.parse(init.body || "{}");
+      const thread = agentThreads.find((t) => t.id === body.threadId);
+      const userMsg = {
+        id: `msg-${Date.now()}`,
+        role: "user",
+        content: typeof body.message === "string" ? body.message : JSON.stringify(body.message),
+      };
+      const agentMsg = {
+        id: `msg-${Date.now() + 1}`,
+        role: "assistant",
+        content: `Task executed: Identified 3 keyword opportunities for ATS match. Updated skills section draft with highest relevance.`,
+      };
+      if (thread) {
+        thread.messages = thread.messages || [];
+        thread.messages.push(userMsg, agentMsg);
+        thread.updatedAt = new Date().toISOString();
+      }
+      return new Response(JSON.stringify(agentMsg), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (path.startsWith("/api/openapi/agent/threads/") && path.endsWith("/archive") && method === "POST") {
+      const tId = path.split("/")[4];
+      const thread = agentThreads.find((t) => t.id === tId);
+      if (thread) thread.status = "archived";
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (path.startsWith("/api/openapi/agent/threads/") && method === "DELETE") {
+      const tId = path.split("/")[4];
+      const idx = agentThreads.findIndex((t) => t.id === tId);
+      if (idx !== -1) agentThreads.splice(idx, 1);
+      return new Response(null, { status: 204 });
+    }
+
+    // 7. Authentication & Account
+    if (path === "/api/openapi/auth/providers" && method === "GET") {
+      return new Response(JSON.stringify(MOCK_AUTH_PROVIDERS), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (path === "/api/openapi/auth/account/export" && method === "GET") {
+      const exportData = {
+        id: "usr_998124",
+        name: "Ata Can Yaymacı",
+        email: "ata@example.com",
+        username: "atacan",
+        provider: "github",
+        authProvidersEnabled: MOCK_AUTH_PROVIDERS,
+        totalResumes: resumes.length,
+        totalApplications: applications.length,
+        exportTimestamp: new Date().toISOString(),
+      };
+      return new Response(JSON.stringify(exportData), {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });

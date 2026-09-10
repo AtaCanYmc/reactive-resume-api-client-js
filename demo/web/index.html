@@ -97,8 +97,14 @@
       <button class="tab-btn" data-tab="applicationsTab" role="tab" aria-selected="false" aria-controls="applicationsTab">
         <span data-i18n="tabApps">Job Applications</span> <span id="appsTabCount" class="tab-count">0</span>
       </button>
+      <button class="tab-btn" data-tab="aiProvidersTab" role="tab" aria-selected="false" aria-controls="aiProvidersTab">
+        <span data-i18n="tabAiProviders">AI Providers</span> <span id="aiProvidersTabCount" class="tab-count">0</span>
+      </button>
+      <button class="tab-btn" data-tab="aiTab" role="tab" aria-selected="false" aria-controls="aiTab">
+        <span data-i18n="tabAiAssistant">AI & Agent Studio</span>
+      </button>
       <button class="tab-btn" data-tab="statsTab" role="tab" aria-selected="false" aria-controls="statsTab">
-        <span data-i18n="tabTelemetry">Telemetry & Flags</span>
+        <span data-i18n="tabTelemetry">Telemetry & Auth</span>
       </button>
       <button class="tab-btn" data-tab="codeTab" role="tab" aria-selected="false" aria-controls="codeTab">
         <span data-i18n="tabPlayground">Code Playground</span>
@@ -171,7 +177,83 @@
       </div>
     </section>
 
-    <!-- TAB 3: STATISTICS & FLAGS -->
+    <!-- TAB 3: AI PROVIDERS -->
+    <section id="aiProvidersTab" class="tab-content" role="tabpanel" aria-labelledby="aiProvidersTab">
+      <div class="section-header">
+        <div class="section-meta">
+          <h2 class="section-title" data-i18n="aiProvidersTitle">AI Providers Management</h2>
+          <p class="section-subtitle"><span data-i18n="aiProvidersSubtitle">Configure and test LLM inference providers via</span> <code>client.aiProviders</code></p>
+        </div>
+        <div class="section-actions">
+          <button id="refreshAiProvidersBtn" class="btn btn-secondary" data-i18n="refreshBtn">Refresh</button>
+          <button id="openCreateAiProviderModalBtn" class="btn btn-primary" data-i18n="createAiProviderBtn">+ Add Provider</button>
+        </div>
+      </div>
+
+      <div id="aiProvidersList" class="resumes-grid">
+        <!-- Rendered dynamically via app.js -->
+      </div>
+    </section>
+
+    <!-- TAB 4: AI & AGENT STUDIO -->
+    <section id="aiTab" class="tab-content" role="tabpanel" aria-labelledby="aiTab">
+      <div class="section-header">
+        <div class="section-meta">
+          <h2 class="section-title" data-i18n="aiTitle">AI Document Analysis & Agent Sessions</h2>
+          <p class="section-subtitle"><span data-i18n="aiSubtitle">Interactive document parsing, resume analysis, and autonomous threads via</span> <code>client.ai & client.agent</code></p>
+        </div>
+      </div>
+
+      <div class="ai-studio-grid">
+        <!-- Left: Resume AI Analysis & Chat -->
+        <div class="ai-studio-panel">
+          <div class="panel-header">
+            <h3 class="panel-title">AI Resume Analyzer (client.ai)</h3>
+          </div>
+          <div class="ai-controls-row">
+            <div class="form-group flex-1">
+              <label class="field-label" data-i18n="targetResumeLabel">Target Resume:</label>
+              <select id="aiTargetResumeSelect" class="input input-mono">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <button id="runAiAnalyzeBtn" class="btn btn-primary" data-i18n="aiAnalyzeBtn">Analyze Resume</button>
+          </div>
+
+          <div id="aiAnalysisResults" class="ai-analysis-box">
+            <div class="empty-state">Select a resume and click "Analyze Resume" to trigger <code>client.ai.analyzeResume()</code></div>
+          </div>
+
+          <div class="ai-chat-section">
+            <h4 class="ai-chat-heading">Interactive Resume AI Assistant (client.ai.chat)</h4>
+            <div id="aiChatHistory" class="ai-chat-history">
+              <div class="chat-msg assistant">
+                <span class="chat-role">AI</span>
+                <span>Hello! Ask me to rephrase, highlight quantifiable impact, or tune tone for any section of your resume.</span>
+              </div>
+            </div>
+            <div class="chat-input-row">
+              <input type="text" id="aiChatInput" class="input flex-1" placeholder="e.g. Optimize technical stack for Staff Engineer roles..." />
+              <button id="sendAiChatBtn" class="btn btn-secondary" data-i18n="aiChatBtn">Ask AI</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Autonomous Agent Threads -->
+        <div class="ai-studio-panel">
+          <div class="panel-header">
+            <h3 class="panel-title">Autonomous Agent Sessions (client.agent)</h3>
+            <button id="newAgentThreadBtn" class="btn btn-sm btn-primary" data-i18n="newThreadBtn">+ New Thread</button>
+          </div>
+
+          <div id="agentThreadsList" class="agent-threads-container">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: STATISTICS & FLAGS -->
     <section id="statsTab" class="tab-content" role="tabpanel" aria-labelledby="statsTab">
       <div class="section-header">
         <div class="section-meta">
@@ -201,6 +283,18 @@
           <span class="code-title" data-i18n="flagsBlockTitle">Server Feature Flags (client.flags.list())</span>
         </div>
         <pre id="flagsJsonBlock" class="code-block">Loading feature flags...</pre>
+      </div>
+
+      <div class="code-inspector" style="margin-top: var(--space-md);">
+        <div class="code-header">
+          <span class="code-title" data-i18n="authSectionTitle">Authentication Service (client.auth)</span>
+          <button id="exportAccountBtn" class="btn btn-sm btn-ghost" data-i18n="exportAccountBtn">Export Account Data</button>
+        </div>
+        <div style="padding: var(--space-sm) var(--space-md); border-bottom: 1px solid var(--color-graphite-rule); display: flex; align-items: center; gap: var(--space-sm); font-family: var(--font-mono); font-size: 0.8rem; color: var(--color-graphite-muted);">
+          <span>Active Auth Providers:</span>
+          <span id="authProvidersChips" style="display: flex; gap: 6px;">Loading...</span>
+        </div>
+        <pre id="authExportBlock" class="code-block">// Click "Export Account Data" above to test client.auth.exportAccount()</pre>
       </div>
     </section>
 
@@ -295,6 +389,38 @@ const resumes = await client.resumes.list();</pre>
       <div class="modal-footer">
         <button class="btn btn-secondary closeModalBtn" data-i18n="cancelBtn">Cancel</button>
         <button id="submitCreateAppBtn" class="btn btn-primary" data-i18n="submitAppBtn">Log Application</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create AI Provider Modal -->
+  <div id="createAiProviderModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="createAiProviderTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="createAiProviderTitle" class="modal-title" data-i18n="createAiProviderBtn">+ Add AI Provider</h3>
+        <button class="btn-icon closeModalBtn" aria-label="Close dialog">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="newProviderLabel" class="field-label">Provider Label</label>
+          <input type="text" id="newProviderLabel" class="input" placeholder="e.g. Production OpenAI or Local Ollama" />
+        </div>
+        <div class="form-group">
+          <label for="newProviderModel" class="field-label">Model Identifier</label>
+          <input type="text" id="newProviderModel" class="input input-mono" placeholder="e.g. gpt-4o, claude-3-5-sonnet, llama3:8b" />
+        </div>
+        <div class="form-group">
+          <label for="newProviderApiKey" class="field-label">API Key</label>
+          <input type="password" id="newProviderApiKey" class="input input-mono" placeholder="Enter provider API key (optional for local Ollama)" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label for="newProviderBaseUrl" class="field-label">Base URL (optional)</label>
+          <input type="text" id="newProviderBaseUrl" class="input input-mono" placeholder="https://api.openai.com/v1 or http://localhost:11434/v1" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary closeModalBtn" data-i18n="cancelBtn">Cancel</button>
+        <button id="submitCreateAiProviderBtn" class="btn btn-primary">Save Provider</button>
       </div>
     </div>
   </div>
