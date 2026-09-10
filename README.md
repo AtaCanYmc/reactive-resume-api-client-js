@@ -441,6 +441,16 @@ it("mocks resume fetching", async () => {
 
 ---
 
+## Contributing & Community
+
+Contributions, feature requests, and issues are warmly welcomed!
+
+- **Contributing Guide**: Check out [CONTRIBUTING.md](CONTRIBUTING.md) for local setup, development commands, and PR guidelines.
+- **Security Inquiries**: Review our security and vulnerability disclosure policy in [SECURITY.md](SECURITY.md).
+- **Code of Conduct**: Please follow our [Code of Conduct](CODE_OF_CONDUCT.md) in all community interactions.
+
+---
+
 ## License
 
 [MIT](LICENSE) &copy; [Ata Can Yaymacı](https://github.com/AtaCanYmc)

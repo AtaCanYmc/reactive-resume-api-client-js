@@ -1,0 +1,74 @@
+name: Bug Report
+description: Create a report to help us improve reactive-resume-api-client-js
+title: "fix: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue! Please ensure that you are not reporting a security vulnerability here — see [SECURITY.md](https://github.com/AtaCanYmc/reactive-resume-api-client-js/blob/main/SECURITY.md) for instructions on reporting security issues.
+
+  - type: input
+    id: version
+    attributes:
+      label: SDK Version
+      description: What version of reactive-resume-api-client-js are you using?
+      placeholder: e.g. 1.0.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: Runtime Environment
+      description: Which JavaScript runtime environment are you encountering this in?
+      options:
+        - Node.js (20.x or newer)
+        - Bun
+        - Deno
+        - Browser (Chrome, Firefox, Safari)
+        - Next.js / Edge Runtime
+        - Cloudflare Workers
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the Bug
+      description: A clear and concise description of what the bug is.
+      placeholder: When calling client.resumes.downloadPdf(...), the method throws...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal Reproduction Code
+      description: Please share a minimal code snippet to reproduce the issue.
+      render: typescript
+      placeholder: |
+        import { RxResumeClient } from "reactive-resume-api-client-js";
+
+        const client = new RxResumeClient({ baseUrl: "https://rxresu.me" });
+        // ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Output / Error Stack Trace
+      description: Please provide the exact error message or terminal stack trace.
+      render: shell
+    validations:
+      required: false
