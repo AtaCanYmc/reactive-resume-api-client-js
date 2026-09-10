@@ -37,8 +37,19 @@ const server = http.createServer(async (req, res) => {
     const targetUrl = parsedUrl.searchParams.get("url");
 
     if (!targetUrl) {
-      res.writeHead(400, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
-      res.end(JSON.stringify({ error: "Missing 'url' query parameter" }));
+      // Browser navigation directly to /proxy -> redirect to web demo root
+      if (req.headers.accept && req.headers.accept.includes("text/html")) {
+        res.writeHead(302, { Location: "/" });
+        res.end();
+        return;
+      }
+      res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
+      res.end(JSON.stringify({
+        status: "ok",
+        service: "reactive-resume-proxy",
+        message: "Proxy endpoint is active. Pass target URL via ?url= query parameter.",
+        example: "/proxy?url=https%3A%2F%2Frxresu.me%2Fapi%2Fopenapi%2Fstatistics%2Fusers",
+      }));
       return;
     }
 
