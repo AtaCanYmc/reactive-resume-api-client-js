@@ -3,34 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reactive Resume JavaScript SDK — Live Web Demo</title>
+  <title>Reactive Resume SDK — Interactive Workbench</title>
+  
+  <!-- Hallmark Typography: Space Grotesk (display), Inter (body), JetBrains Mono (code/mono) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
   <link rel="stylesheet" href="styles.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230ea5e9'/><text x='50%' y='65%' font-family='monospace' font-weight='bold' font-size='50' fill='white' text-anchor='middle'>Rx</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='12' fill='%231947e5'/><text x='50%' y='68%' font-family='monospace' font-weight='bold' font-size='56' fill='white' text-anchor='middle'>Rx</text></svg>" />
 </head>
 <body>
 
-  <!-- Header -->
-  <header>
+  <!-- Technical Workbench Header (N8 archetype) -->
+  <header class="header">
     <div class="header-container">
-      <a href="#" class="brand">
-        <div class="brand-icon">Rx</div>
-        <div>
+      <a href="#" class="brand" aria-label="Reactive Resume SDK Workbench Home">
+        <span class="brand-glyph" aria-hidden="true">Rx</span>
+        <div class="brand-copy">
           <span class="brand-title">reactive-resume-api-client-js</span>
-          <span class="brand-badge">SDK v0.1.0</span>
+          <span class="brand-tag">SDK WORKBENCH</span>
         </div>
       </a>
 
       <div class="header-controls">
-        <div id="modeBadge" class="mode-badge sandbox">
-          <span class="pulse-dot"></span>
-          <span id="modeText">Sandbox Mode</span>
+        <div id="modeBadge" class="mode-badge sandbox" role="status" aria-live="polite">
+          <span class="status-indicator" aria-hidden="true"></span>
+          <span id="modeText">Sandbox Mode (Mock Data)</span>
         </div>
-        <a href="https://github.com/AtaCanYmc/reactive-resume-api-client-js" target="_blank" class="btn btn-sm">
-          GitHub
-        </a>
-        <a href="https://www.npmjs.com/package/reactive-resume-api-client-js" target="_blank" class="btn btn-sm">
-          npm
-        </a>
+
+        <nav class="external-links" aria-label="External Repositories">
+          <a href="https://github.com/AtaCanYmc/reactive-resume-api-client-js" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-ghost">
+            GitHub
+          </a>
+          <a href="https://www.npmjs.com/package/reactive-resume-api-client-js" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-ghost">
+            npm
+          </a>
+        </nav>
       </div>
     </div>
   </header>
@@ -38,75 +47,77 @@
   <!-- Main Container -->
   <main class="container">
 
-    <!-- Configuration Card -->
-    <section class="config-card">
+    <!-- Client Configuration Card -->
+    <section class="config-card" aria-labelledby="config-heading">
+      <div class="config-topbar">
+        <h2 id="config-heading" class="config-title">Client Connection</h2>
+        <label class="sandbox-switch">
+          <input type="checkbox" id="sandboxToggle" checked />
+          <span class="switch-ui" aria-hidden="true"></span>
+          <span class="switch-label">Offline Sandbox Mode</span>
+        </label>
+      </div>
+
       <div class="config-form">
-        <div class="form-group">
-          <label for="baseUrlInput">Base URL</label>
-          <input type="text" id="baseUrlInput" class="input input-wide" value="https://rxresu.me" placeholder="https://rxresu.me or custom instance" />
+        <div class="form-group flex-1">
+          <label for="baseUrlInput" class="field-label">API Base URL</label>
+          <input type="text" id="baseUrlInput" class="input input-mono" value="https://rxresu.me" placeholder="https://rxresu.me or custom instance" spellcheck="false" />
         </div>
 
-        <div class="form-group">
-          <label for="apiKeyInput">API Key / Token (optional for live mode)</label>
-          <input type="password" id="apiKeyInput" class="input input-wide" placeholder="Enter x-api-key or Bearer token" />
+        <div class="form-group flex-1">
+          <label for="apiKeyInput" class="field-label">API Key / Bearer Token <span class="field-hint">(optional in sandbox)</span></label>
+          <input type="password" id="apiKeyInput" class="input input-mono" placeholder="Enter x-api-key or Bearer token" autocomplete="off" />
         </div>
 
-        <div class="form-group" style="justify-content: flex-end;">
+        <div class="form-group action-group">
           <button id="applyConfigBtn" class="btn btn-primary">Connect Client</button>
         </div>
       </div>
-
-      <div class="switch-group">
-        <label>
-          <input type="checkbox" id="sandboxToggle" checked />
-          <b>Sandbox Mode</b> (Offline Mock)
-        </label>
-      </div>
     </section>
 
-    <!-- Navigation Tabs -->
-    <nav class="tabs">
-      <button class="tab-btn active" data-tab="resumesTab">
-        📄 Resumes (<span id="resumesTabCount">0</span>)
+    <!-- Segmented Navigation Tabs (Disciplined typography, zero AI emojis) -->
+    <nav class="tabs" role="tablist" aria-label="Workbench Sections">
+      <button class="tab-btn active" data-tab="resumesTab" role="tab" aria-selected="true" aria-controls="resumesTab">
+        Resumes <span id="resumesTabCount" class="tab-count">0</span>
       </button>
-      <button class="tab-btn" data-tab="applicationsTab">
-        💼 Job Applications (<span id="appsTabCount">0</span>)
+      <button class="tab-btn" data-tab="applicationsTab" role="tab" aria-selected="false" aria-controls="applicationsTab">
+        Job Applications <span id="appsTabCount" class="tab-count">0</span>
       </button>
-      <button class="tab-btn" data-tab="statsTab">
-        📊 Statistics & Flags
+      <button class="tab-btn" data-tab="statsTab" role="tab" aria-selected="false" aria-controls="statsTab">
+        Telemetry & Flags
       </button>
-      <button class="tab-btn" data-tab="codeTab">
-        💻 Live Code Playground
+      <button class="tab-btn" data-tab="codeTab" role="tab" aria-selected="false" aria-controls="codeTab">
+        Code Playground
       </button>
     </nav>
 
     <!-- TAB 1: RESUMES -->
-    <section id="resumesTab" class="tab-content active">
+    <section id="resumesTab" class="tab-content active" role="tabpanel" aria-labelledby="resumesTab">
       <div class="section-header">
-        <div>
+        <div class="section-meta">
           <h2 class="section-title">Resumes Management</h2>
-          <p class="section-subtitle">List, inspect, create, and compile resumes to PDF via <code>client.resumes</code></p>
+          <p class="section-subtitle">List, inspect, and compile resumes to PDF via <code>client.resumes</code></p>
         </div>
-        <div style="display: flex; gap: 0.5rem;">
-          <button id="refreshResumesBtn" class="btn">Refresh</button>
-          <button id="openCreateResumeModalBtn" class="btn btn-primary">+ Create / Import Resume</button>
+        <div class="section-actions">
+          <button id="refreshResumesBtn" class="btn btn-secondary">Refresh</button>
+          <button id="openCreateResumeModalBtn" class="btn btn-primary">+ Create Resume</button>
         </div>
       </div>
 
       <div id="resumesList" class="resumes-grid">
-        <!-- Rendered dynamically -->
+        <!-- Rendered dynamically via app.js -->
       </div>
     </section>
 
     <!-- TAB 2: APPLICATIONS -->
-    <section id="applicationsTab" class="tab-content">
+    <section id="applicationsTab" class="tab-content" role="tabpanel" aria-labelledby="applicationsTab">
       <div class="section-header">
-        <div>
+        <div class="section-meta">
           <h2 class="section-title">Job Applications Tracker</h2>
-          <p class="section-subtitle">Track job pipeline stages and log interviews via <code>client.applications</code></p>
+          <p class="section-subtitle">Track hiring pipeline stages and notes via <code>client.applications</code></p>
         </div>
-        <div style="display: flex; gap: 0.5rem;">
-          <button id="refreshAppsBtn" class="btn">Refresh</button>
+        <div class="section-actions">
+          <button id="refreshAppsBtn" class="btn btn-secondary">Refresh</button>
           <button id="openCreateAppModalBtn" class="btn btn-primary">+ Log Application</button>
         </div>
       </div>
@@ -114,84 +125,87 @@
       <div class="kanban-board">
         <div class="kanban-col">
           <div class="kanban-col-header">
-            <span>Applied</span>
+            <span class="col-name">Applied</span>
             <span id="countApplied" class="kanban-count">0</span>
           </div>
-          <div id="colApplied" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+          <div id="colApplied" class="kanban-col-content"></div>
         </div>
 
         <div class="kanban-col">
           <div class="kanban-col-header">
-            <span>Interviewing</span>
+            <span class="col-name">Interviewing</span>
             <span id="countInterviewing" class="kanban-count">0</span>
           </div>
-          <div id="colInterviewing" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+          <div id="colInterviewing" class="kanban-col-content"></div>
         </div>
 
         <div class="kanban-col">
           <div class="kanban-col-header">
-            <span>Offered</span>
+            <span class="col-name">Offered</span>
             <span id="countOffered" class="kanban-count">0</span>
           </div>
-          <div id="colOffered" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+          <div id="colOffered" class="kanban-col-content"></div>
         </div>
 
         <div class="kanban-col">
           <div class="kanban-col-header">
-            <span>Rejected</span>
+            <span class="col-name">Rejected</span>
             <span id="countRejected" class="kanban-count">0</span>
           </div>
-          <div id="colRejected" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+          <div id="colRejected" class="kanban-col-content"></div>
         </div>
       </div>
     </section>
 
     <!-- TAB 3: STATISTICS & FLAGS -->
-    <section id="statsTab" class="tab-content">
+    <section id="statsTab" class="tab-content" role="tabpanel" aria-labelledby="statsTab">
       <div class="section-header">
-        <div>
+        <div class="section-meta">
           <h2 class="section-title">Platform Statistics & Feature Flags</h2>
-          <p class="section-subtitle">Global platform metrics via <code>client.statistics</code> and flags via <code>client.flags</code></p>
+          <p class="section-subtitle">Global server metrics via <code>client.statistics</code> and feature flags via <code>client.flags</code></p>
         </div>
-        <button id="refreshStatsBtn" class="btn">Refresh Metrics</button>
+        <button id="refreshStatsBtn" class="btn btn-secondary">Refresh Telemetry</button>
       </div>
 
       <div class="stats-grid">
         <div class="stat-card">
-          <span class="stat-label">Total Platform Users</span>
+          <span class="stat-label">TOTAL PLATFORM USERS</span>
           <span id="statUsersCount" class="stat-value">—</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">GitHub Stars</span>
+          <span class="stat-label">GITHUB STARS</span>
           <span id="statGithubStars" class="stat-value">—</span>
         </div>
         <div class="stat-card">
-          <span class="stat-label">Total Resumes Built</span>
+          <span class="stat-label">RESUMES COMPILED</span>
           <span id="statResumesCount" class="stat-value">—</span>
         </div>
       </div>
 
       <div class="code-inspector">
         <div class="code-header">
-          <span>Server Feature Flags (client.flags.list())</span>
+          <span class="code-title">Server Feature Flags (client.flags.list())</span>
         </div>
         <pre id="flagsJsonBlock" class="code-block">Loading feature flags...</pre>
       </div>
     </section>
 
     <!-- TAB 4: CODE PLAYGROUND -->
-    <section id="codeTab" class="tab-content">
+    <section id="codeTab" class="tab-content" role="tabpanel" aria-labelledby="codeTab">
       <div class="section-header">
-        <div>
+        <div class="section-meta">
           <h2 class="section-title">Live Code Playground</h2>
-          <p class="section-subtitle">Executable SDK code snippets running against the current client</p>
+          <p class="section-subtitle">Real-time TypeScript execution log for operations run against the active client</p>
         </div>
       </div>
 
       <div class="code-inspector">
         <div class="code-header">
-          <span>TypeScript / JavaScript Execution Log</span>
-          <button id="copyCodeBtn" class="btn btn-sm">Copy Snippet</button>
+          <div class="code-file-meta">
+            <span class="code-dot"></span>
+            <span class="code-title">reactive-resume-execution.ts</span>
+          </div>
+          <button id="copyCodeBtn" class="btn btn-sm btn-ghost">Copy Snippet</button>
         </div>
         <pre id="lastExecutedCode" class="code-block">// Initialize client
 const client = new RxResumeClient({
@@ -207,52 +221,52 @@ const resumes = await client.resumes.list();</pre>
   </main>
 
   <!-- Create Resume Modal -->
-  <div id="createResumeModal" class="modal-backdrop">
+  <div id="createResumeModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="createResumeTitle">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 style="font-weight: 700;">Create / Import New Resume</h3>
-        <button class="btn btn-sm closeModalBtn">✕</button>
+        <h3 id="createResumeTitle" class="modal-title">Create / Import Resume</h3>
+        <button class="btn-icon closeModalBtn" aria-label="Close dialog">✕</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label for="newResumeTitle">Resume Title</label>
-          <input type="text" id="newResumeTitle" class="input" placeholder="e.g. Ata Can Yaymacı - Backend Engineer" />
+          <label for="newResumeTitle" class="field-label">Resume Title</label>
+          <input type="text" id="newResumeTitle" class="input" placeholder="e.g. Ata Can Yaymacı - Backend Lead" />
         </div>
         <div class="form-group">
-          <label for="newResumeSlug">Custom Slug (optional)</label>
-          <input type="text" id="newResumeSlug" class="input" placeholder="e.g. backend-lead" />
+          <label for="newResumeSlug" class="field-label">Custom Slug (optional)</label>
+          <input type="text" id="newResumeSlug" class="input input-mono" placeholder="e.g. backend-lead" />
         </div>
         <div class="form-group">
-          <label for="newResumeHeadline">Professional Headline</label>
+          <label for="newResumeHeadline" class="field-label">Professional Headline</label>
           <input type="text" id="newResumeHeadline" class="input" placeholder="e.g. Senior Software Architect" />
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn closeModalBtn">Cancel</button>
+        <button class="btn btn-secondary closeModalBtn">Cancel</button>
         <button id="submitCreateResumeBtn" class="btn btn-primary">Create Resume</button>
       </div>
     </div>
   </div>
 
   <!-- Create Application Modal -->
-  <div id="createAppModal" class="modal-backdrop">
+  <div id="createAppModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="createAppTitle">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 style="font-weight: 700;">Log New Job Application</h3>
-        <button class="btn btn-sm closeModalBtn">✕</button>
+        <h3 id="createAppTitle" class="modal-title">Log Job Application</h3>
+        <button class="btn-icon closeModalBtn" aria-label="Close dialog">✕</button>
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label for="newAppCompany">Company Name</label>
-          <input type="text" id="newAppCompany" class="input" placeholder="e.g. Stripe, Vercel, Supabase" />
+          <label for="newAppCompany" class="field-label">Company Name</label>
+          <input type="text" id="newAppCompany" class="input" placeholder="e.g. Stripe, Supabase, Vercel" />
         </div>
         <div class="form-group">
-          <label for="newAppPosition">Position / Role</label>
-          <input type="text" id="newAppPosition" class="input" placeholder="e.g. Senior Infrastructure Engineer" />
+          <label for="newAppPosition" class="field-label">Position / Role</label>
+          <input type="text" id="newAppPosition" class="input" placeholder="e.g. Staff Infrastructure Engineer" />
         </div>
         <div class="form-group">
-          <label for="newAppStage">Pipeline Stage</label>
-          <select id="newAppStage" class="input" style="cursor: pointer;">
+          <label for="newAppStage" class="field-label">Pipeline Stage</label>
+          <select id="newAppStage" class="input select-input">
             <option value="Applied">Applied</option>
             <option value="Interviewing">Interviewing</option>
             <option value="Offered">Offered</option>
@@ -260,40 +274,48 @@ const resumes = await client.resumes.list();</pre>
           </select>
         </div>
         <div class="form-group">
-          <label for="newAppSummary">Summary / Notes</label>
-          <input type="text" id="newAppSummary" class="input" placeholder="e.g. Recruiter phone screen scheduled for Friday" />
+          <label for="newAppSummary" class="field-label">Summary / Notes</label>
+          <input type="text" id="newAppSummary" class="input" placeholder="e.g. First round technical screen scheduled" />
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn closeModalBtn">Cancel</button>
+        <button class="btn btn-secondary closeModalBtn">Cancel</button>
         <button id="submitCreateAppBtn" class="btn btn-primary">Log Application</button>
       </div>
     </div>
   </div>
 
   <!-- PDF Preview Modal -->
-  <div id="pdfModal" class="modal-backdrop">
-    <div class="modal-card" style="max-width: 800px; height: 85vh;">
+  <div id="pdfModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="pdfModalTitle">
+    <div class="modal-card modal-large">
       <div class="modal-header">
-        <h3 id="pdfModalTitle" style="font-weight: 700;">Compiled Resume PDF</h3>
-        <button class="btn btn-sm closeModalBtn">✕</button>
+        <h3 id="pdfModalTitle" class="modal-title">Compiled Resume PDF</h3>
+        <button class="btn-icon closeModalBtn" aria-label="Close dialog">✕</button>
       </div>
-      <div class="modal-body" style="padding: 0; flex: 1; min-height: 400px;">
-        <iframe id="pdfFrame" style="width: 100%; height: 100%; border: none; min-height: 450px;"></iframe>
+      <div class="modal-body modal-preview-body">
+        <iframe id="pdfFrame" class="pdf-frame" title="PDF Preview Frame"></iframe>
       </div>
       <div class="modal-footer">
-        <a id="pdfDownloadLink" class="btn btn-primary" download="resume.pdf">Download File</a>
-        <button class="btn closeModalBtn">Close</button>
+        <a id="pdfDownloadLink" class="btn btn-primary" download="resume.pdf">Download PDF</a>
+        <button class="btn btn-secondary closeModalBtn">Close</button>
       </div>
     </div>
   </div>
 
   <!-- Toast Container -->
-  <div id="toastContainer" class="toast-container"></div>
+  <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- Footer -->
-  <footer>
-    <p>Powered by <b>reactive-resume-api-client-js</b> · Unofficial SDK for Reactive Resume v4 · MIT License &copy; 2026 Ata Can Yaymacı</p>
+  <!-- Footer (Ft2 Inline Single Line Archetype) -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-copy">
+        <span class="footer-mark">reactive-resume-api-client-js</span>
+        <span class="footer-divider" aria-hidden="true">/</span>
+        <span>Unofficial SDK for Reactive Resume v4</span>
+        <span class="footer-divider" aria-hidden="true">/</span>
+        <span>MIT License &copy; 2026 Ata Can Yaymacı</span>
+      </p>
+    </div>
   </footer>
 
   <!-- App script as ES Module -->

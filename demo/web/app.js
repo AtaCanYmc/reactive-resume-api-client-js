@@ -50,8 +50,7 @@ const pdfModalTitle = document.getElementById("pdfModalTitle");
 function showToast(message, isError = false) {
   const container = document.getElementById("toastContainer");
   const toast = document.createElement("div");
-  toast.className = "toast";
-  if (isError) toast.style.borderColor = "var(--danger)";
+  toast.className = "toast" + (isError ? " error" : "");
   toast.textContent = message;
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 4000);
@@ -111,8 +110,8 @@ const resumes = await client.resumes.list();
 
     resumesList.innerHTML = "";
     if (resumes.length === 0) {
-      resumesList.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;">
-        No resumes found. Click "+ Create / Import Resume" to get started.
+      resumesList.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--color-muted); padding: 3rem;">
+        No resumes found. Click "+ Create Resume" to get started.
       </div>`;
       return;
     }
@@ -132,7 +131,7 @@ const resumes = await client.resumes.list();
               ${resume.locked ? `<span class="pill pill-locked">locked</span>` : ""}
             </div>
           </div>
-          <p style="font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem;">
+          <p style="font-size: 0.78rem; color: var(--color-dim); margin-top: 0.5rem; font-family: var(--font-mono);">
             Updated: ${new Date(resume.updatedAt || resume.updated_at || Date.now()).toLocaleDateString()}
           </p>
         </div>
@@ -261,12 +260,12 @@ const applications = await client.applications.list();
       const card = document.createElement("div");
       card.className = "kanban-card";
       card.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
           <span class="kanban-company">${escapeHtml(app.company)}</span>
-          <button class="btn btn-sm btn-danger delete-app-btn" data-id="${app.id}" style="padding: 0.15rem 0.35rem; font-size: 0.65rem;">✕</button>
+          <button class="btn-icon delete-app-btn" data-id="${app.id}" title="Delete Application" style="width: 22px; height: 22px; font-size: 0.65rem;">✕</button>
         </div>
         <p class="kanban-pos">${escapeHtml(app.position)}</p>
-        ${app.summary ? `<p style="font-size: 0.75rem; color: var(--text-muted);">${escapeHtml(app.summary)}</p>` : ""}
+        ${app.summary ? `<p class="kanban-notes">${escapeHtml(app.summary)}</p>` : ""}
         <p class="kanban-date">${new Date(app.date || Date.now()).toLocaleDateString()}</p>
       `;
 
